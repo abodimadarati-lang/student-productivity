@@ -1,6 +1,6 @@
 // ==== STORAGE HELPERS ====
 const Storage = {
-  async get(key) {
+  get(key) {
     try {
       const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : [];
@@ -10,7 +10,7 @@ const Storage = {
     }
   },
 
-  async set(key, value) {
+  set(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
@@ -47,81 +47,105 @@ let tasksCompleted = 0;
 let studyMinutes = 0;
 
 // ==== ASSIGNMENTS ====
-async function addAssignment() {
-  const text = document.getElementById("assignmentInput").value;
-  const date = document.getElementById("dueDate").value;
+function addAssignment() {
+  const textInput = document.getElementById("assignmentInput");
+  const dateInput = document.getElementById("dueDate");
+  const text = textInput.value;
+  const date = dateInput.value;
   if (!text) return;
 
   const assignment = new Assignment(text, date);
   assignments.push(assignment);
-  await Storage.set("assignments", assignments);
+  Storage.set("assignments", assignments);
   renderAssignments();
+
+  // Clear input fields
+  textInput.value = "";
+  dateInput.value = "";
 }
 
-async function renderAssignments() {
-  assignments = await Storage.get("assignments");
+function renderAssignments() {
+  assignments = Storage.get("assignments");
   const list = document.getElementById("assignmentList");
   list.innerHTML = "";
 
   assignments.forEach((a, i) => {
     const li = document.createElement("li");
-    li.innerHTML = `${a.text} (Due: ${a.date}) <button onclick="completeAssignment(${i})">Done</button>`;
+    const textNode = document.createTextNode(`${a.text} (Due: ${a.date}) `);
+    const btn = document.createElement("button");
+    btn.textContent = "Done";
+    btn.addEventListener("click", () => completeAssignment(i));
+
+    li.appendChild(textNode);
+    li.appendChild(btn);
     list.appendChild(li);
   });
 
-  document.getElementById("assignmentsRemaining").innerText = assignments.length;
+  document.getElementById("assignmentsRemaining").textContent = assignments.length;
 }
 
-async function completeAssignment(index) {
+function completeAssignment(index) {
   assignments.splice(index, 1);
-  await Storage.set("assignments", assignments);
+  Storage.set("assignments", assignments);
   tasksCompleted++;
-  document.getElementById("tasksCompleted").innerText = tasksCompleted;
+  document.getElementById("tasksCompleted").textContent = tasksCompleted;
   renderAssignments();
 }
 
 // ==== TASKS ====
-async function addTask() {
-  const text = document.getElementById("taskInput").value;
+function addTask() {
+  const input = document.getElementById("taskInput");
+  const text = input.value;
   if (!text) return;
 
   const task = new Task(text);
   tasks.push(task);
-  await Storage.set("tasks", tasks);
+  Storage.set("tasks", tasks);
   renderTasks();
+
+  // Clear input field
+  input.value = "";
 }
 
-async function renderTasks() {
-  tasks = await Storage.get("tasks");
+function renderTasks() {
+  tasks = Storage.get("tasks");
   const list = document.getElementById("taskList");
   list.innerHTML = "";
 
   tasks.forEach((t, i) => {
     const li = document.createElement("li");
-    li.innerHTML = `${t.text} <button onclick="completeTask(${i})">Done</button>`;
+    const textNode = document.createTextNode(t.text + " ");
+    const btn = document.createElement("button");
+    btn.textContent = "Done";
+    btn.addEventListener("click", () => completeTask(i));
+
+    li.appendChild(textNode);
+    li.appendChild(btn);
     list.appendChild(li);
   });
 }
 
-async function completeTask(index) {
+function completeTask(index) {
   tasks.splice(index, 1);
-  await Storage.set("tasks", tasks);
+  Storage.set("tasks", tasks);
   tasksCompleted++;
-  document.getElementById("tasksCompleted").innerText = tasksCompleted;
+  document.getElementById("tasksCompleted").textContent = tasksCompleted;
   renderTasks();
 }
 
 // ==== GRADES ====
-async function addGrade() {
+function addGrade() {
   const g = parseFloat(document.getElementById("gradeInput").value);
   if (isNaN(g)) return;
 
   const grade = new Grade(g);
   grades.push(grade);
-  await Storage.set("grades", grades);
+  Storage.set("grades", grades);
 
-  const avg = grades.reduce((sum, g) => sum + g.value, 0) / grades.length;
-  document.getElementById("averageGrade").innerText = avg.toFixed(2);
+  if (grades.length > 0) {
+    const avg = grades.reduce((sum, g) => sum + g.value, 0) / grades.length;
+    document.getElementById("averageGrade").textContent = avg.toFixed(2);
+  }
 }
 
 // ==== TIMER ====
@@ -134,12 +158,12 @@ function startTimer() {
     time--;
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
-    document.getElementById("timer").innerText = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    document.getElementById("timer").textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
     if (time <= 0) {
       clearInterval(timerInterval);
       studyMinutes += 25;
-      document.getElementById("studyTime").innerText = studyMinutes;
+      document.getElementById("studyTime").textContent = studyMinutes;
       alert("Break Time!");
       time = 300; // 5 minutes break
     }
@@ -149,7 +173,7 @@ function startTimer() {
 function resetTimer() {
   clearInterval(timerInterval);
   time = 1500;
-  document.getElementById("timer").innerText = "25:00";
+  document.getElementById("timer").textContent = "25:00";
 }
 
 // ==== FOCUS MODE ====
@@ -158,21 +182,22 @@ function focusMode() {
     <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-size:40px">
       <div id="timer">25:00</div>
       <p>"Success is built in hours of focus."</p>
-      <button onclick="location.reload()">Exit</button>
+      <button id="exitFocus">Exit</button>
     </div>
   `;
+  document.getElementById("exitFocus").addEventListener("click", () => location.reload());
 }
 
 // ==== DARK MODE ====
-document.getElementById("darkModeToggle").onclick = () => {
+document.getElementById("darkModeToggle").addEventListener("click", () => {
   document.body.classList.toggle("dark");
-};
+});
 
 // ==== INITIAL RENDER ====
-(async function init() {
-  assignments = await Storage.get("assignments");
-  tasks = await Storage.get("tasks");
-  grades = await Storage.get("grades");
+(function init() {
+  assignments = Storage.get("assignments");
+  tasks = Storage.get("tasks");
+  grades = Storage.get("grades");
   renderAssignments();
   renderTasks();
 })();

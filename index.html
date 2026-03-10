@@ -1,0 +1,92 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2867
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+<meta charset="UTF-8">\
+<meta name="viewport" content="width=device-width, initial-scale=1.0">\
+<title>Student Productivity Dashboard</title>\
+<link rel="stylesheet" href="style.css">\
+</head>\
+\
+<body>\
+\
+<header>\
+<h1>Student Productivity Dashboard</h1>\
+<button id="darkModeToggle">Dark Mode</button>\
+</header>\
+\
+<div class="container">\
+\
+<!-- Assignment Tracker -->\
+<section class="card">\
+<h2>Assignment Tracker</h2>\
+\
+<input type="text" id="assignmentInput" placeholder="Enter assignment">\
+<input type="date" id="dueDate">\
+<button onclick="addAssignment()">Add</button>\
+\
+<ul id="assignmentList"></ul>\
+</section>\
+\
+\
+<!-- Pomodoro Timer -->\
+<section class="card">\
+<h2>Study Timer (Pomodoro)</h2>\
+\
+<div id="timer">25:00</div>\
+\
+<button onclick="startTimer()">Start</button>\
+<button onclick="resetTimer()">Reset</button>\
+</section>\
+\
+\
+<!-- Daily Planner -->\
+<section class="card">\
+<h2>Daily Study Planner</h2>\
+\
+<input type="text" id="taskInput" placeholder="Add task">\
+<button onclick="addTask()">Add</button>\
+\
+<ul id="taskList"></ul>\
+</section>\
+\
+\
+<!-- Grade Calculator -->\
+<section class="card">\
+<h2>Grade Calculator</h2>\
+\
+<input type="number" id="gradeInput" placeholder="Enter grade">\
+<button onclick="addGrade()">Add</button>\
+\
+<p>Average Grade: <span id="averageGrade">0</span></p>\
+</section>\
+\
+\
+<!-- Productivity Stats -->\
+<section class="card">\
+<h2>Productivity Statistics</h2>\
+\
+<p>Tasks Completed: <span id="tasksCompleted">0</span></p>\
+<p>Assignments Remaining: <span id="assignmentsRemaining">0</span></p>\
+<p>Total Study Time: <span id="studyTime">0</span> minutes</p>\
+</section>\
+\
+\
+<!-- Focus Mode -->\
+<section class="card">\
+<h2>Focus Mode</h2>\
+<button onclick="focusMode()">Enter Focus Mode</button>\
+</section>\
+\
+</div>\
+\
+<script src="script.js"></script>\
+\
+</body>\
+</html>}

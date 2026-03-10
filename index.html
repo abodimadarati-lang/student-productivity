@@ -1,92 +1,130 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2867
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Productivity Dashboard</title>
+    <!-- Link to CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h1>ProdDash</h1>
+            <nav>
+                <ul>
+                    <li><button data-section="dashboard" class="active">Dashboard</button></li>
+                    <li><button data-section="assignments">Assignments</button></li>
+                    <li><button data-section="planner">Planner</button></li>
+                    <li><button data-section="timer">Pomodoro Timer</button></li>
+                    <li><button data-section="grades">Grade Calculator</button></li>
+                    <li><button data-section="focus">Focus Mode</button></li>
+                    <li><button data-section="stats">Statistics</button></li>
+                </ul>
+            </nav>
+            <div class="dark-mode-toggle">
+                <label>
+                    <input type="checkbox" id="darkModeSwitch"> Dark Mode
+                </label>
+            </div>
+        </aside>
 
-\f0\fs24 \cf0 <!DOCTYPE html>\
-<html lang="en">\
-<head>\
-<meta charset="UTF-8">\
-<meta name="viewport" content="width=device-width, initial-scale=1.0">\
-<title>Student Productivity Dashboard</title>\
-<link rel="stylesheet" href="style.css">\
-</head>\
-\
-<body>\
-\
-<header>\
-<h1>Student Productivity Dashboard</h1>\
-<button id="darkModeToggle">Dark Mode</button>\
-</header>\
-\
-<div class="container">\
-\
-<!-- Assignment Tracker -->\
-<section class="card">\
-<h2>Assignment Tracker</h2>\
-\
-<input type="text" id="assignmentInput" placeholder="Enter assignment">\
-<input type="date" id="dueDate">\
-<button onclick="addAssignment()">Add</button>\
-\
-<ul id="assignmentList"></ul>\
-</section>\
-\
-\
-<!-- Pomodoro Timer -->\
-<section class="card">\
-<h2>Study Timer (Pomodoro)</h2>\
-\
-<div id="timer">25:00</div>\
-\
-<button onclick="startTimer()">Start</button>\
-<button onclick="resetTimer()">Reset</button>\
-</section>\
-\
-\
-<!-- Daily Planner -->\
-<section class="card">\
-<h2>Daily Study Planner</h2>\
-\
-<input type="text" id="taskInput" placeholder="Add task">\
-<button onclick="addTask()">Add</button>\
-\
-<ul id="taskList"></ul>\
-</section>\
-\
-\
-<!-- Grade Calculator -->\
-<section class="card">\
-<h2>Grade Calculator</h2>\
-\
-<input type="number" id="gradeInput" placeholder="Enter grade">\
-<button onclick="addGrade()">Add</button>\
-\
-<p>Average Grade: <span id="averageGrade">0</span></p>\
-</section>\
-\
-\
-<!-- Productivity Stats -->\
-<section class="card">\
-<h2>Productivity Statistics</h2>\
-\
-<p>Tasks Completed: <span id="tasksCompleted">0</span></p>\
-<p>Assignments Remaining: <span id="assignmentsRemaining">0</span></p>\
-<p>Total Study Time: <span id="studyTime">0</span> minutes</p>\
-</section>\
-\
-\
-<!-- Focus Mode -->\
-<section class="card">\
-<h2>Focus Mode</h2>\
-<button onclick="focusMode()">Enter Focus Mode</button>\
-</section>\
-\
-</div>\
-\
-<script src="script.js"></script>\
-\
-</body>\
-</html>}
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <h2>Welcome, Student!</h2>
+                <p>Quick overview of your productivity today.</p>
+                <div class="cards">
+                    <div class="card">
+                        <h3>Assignments Remaining</h3>
+                        <span id="assignmentsRemaining">0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Tasks Completed</h3>
+                        <span id="tasksCompleted">0</span>
+                    </div>
+                    <div class="card">
+                        <h3>Study Time</h3>
+                        <span id="studyTime">0 min</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Assignments Section -->
+            <section id="assignments" class="section">
+                <h2>Homework & Assignments</h2>
+                <form id="assignmentForm">
+                    <input type="text" id="assignmentInput" placeholder="Add new assignment" required>
+                    <input type="date" id="assignmentDate" required>
+                    <button type="submit">Add Assignment</button>
+                </form>
+                <ul id="assignmentList"></ul>
+            </section>
+
+            <!-- Planner Section -->
+            <section id="planner" class="section">
+                <h2>Daily Study Planner</h2>
+                <form id="plannerForm">
+                    <input type="text" id="plannerTask" placeholder="New Task" required>
+                    <input type="time" id="plannerTime" required>
+                    <button type="submit">Add Task</button>
+                </form>
+                <ul id="plannerList"></ul>
+            </section>
+
+            <!-- Pomodoro Timer Section -->
+            <section id="timer" class="section">
+                <h2>Pomodoro Timer</h2>
+                <div class="timer-display">
+                    <span id="minutes">25</span>:<span id="seconds">00</span>
+                </div>
+                <div class="timer-controls">
+                    <button id="startTimer">Start</button>
+                    <button id="pauseTimer">Pause</button>
+                    <button id="resetTimer">Reset</button>
+                </div>
+            </section>
+
+            <!-- Grade Calculator Section -->
+            <section id="grades" class="section">
+                <h2>Grade Calculator</h2>
+                <form id="gradeForm">
+                    <input type="number" class="gradeInput" placeholder="Grade 1" min="0" max="100" required>
+                    <input type="number" class="gradeInput" placeholder="Grade 2" min="0" max="100">
+                    <input type="number" class="gradeInput" placeholder="Grade 3" min="0" max="100">
+                    <button type="submit">Calculate Average</button>
+                </form>
+                <p>Average Grade: <span id="averageGrade">0</span>%</p>
+            </section>
+
+            <!-- Focus Mode Section -->
+            <section id="focus" class="section">
+                <h2>Focus Mode</h2>
+                <div class="focus-display">
+                    <p id="focusTimer">25:00</p>
+                    <p id="motivationalQuote">“Stay focused, stay productive!”</p>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section id="stats" class="section">
+                <h2>Productivity Statistics</h2>
+                <div id="charts">
+                    <!-- Placeholder for future chart JS -->
+                    <p>Charts coming soon...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Link to JS -->
+    <script src="script.js"></script>
+</body>
+</html>

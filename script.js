@@ -9,7 +9,6 @@ const Storage = {
       return [];
     }
   },
-
   set(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
@@ -19,45 +18,48 @@ const Storage = {
   }
 };
 
-// ==== CLASSES ====
-class Assignment {
-  constructor(text, date) {
-    this.text = text;
-    this.date = date;
-  }
-}
-
-class Task {
-  constructor(text) {
-    this.text = text;
-    this.completed = false;
-  }
-}
-
-class Grade {
-  constructor(value) {
-    this.value = value;
-  }
-}
-
 // ==== APP STATE ====
-let assignments = [];
-let tasks = [];
-let grades = [];
+let assignments = Storage.get("assignments");
+let tasks = Storage.get("tasks");
 let tasksCompleted = 0;
 let studyMinutes = 0;
 
+// ==== NAVIGATION ====
+// Handles sidebar buttons switching between sections
+document.querySelectorAll(".sidebar nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    // Remove active from all buttons and sections
+    document.querySelectorAll(".sidebar nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+
+    // Activate clicked button and matching section
+    btn.classList.add("active");
+    const sectionId = btn.getAttribute("data-section");
+    document.getElementById(sectionId).classList.add("active");
+  });
+});
+
+// ==== DARK MODE ====
+// HTML uses a checkbox with id="darkModeSwitch"
+document.getElementById("darkModeSwitch").addEventListener("change", (e) => {
+  document.body.classList.toggle("dark", e.target.checked);
+});
+
 // ==== ASSIGNMENTS ====
+document.getElementById("assignmentForm").addEventListener("submit", (e) => {
+  e.preventDefault(); // Stops page from reloading on form submit
+  addAssignment();
+});
+
 function addAssignment() {
   const textInput = document.getElementById("assignmentInput");
-  const dateInput = document.getElementById("dueDate");
+  const dateInput = document.getElementById("assignmentDate"); // Fixed: was "dueDate"
   const text = textInput.value.trim();
   const date = dateInput.value;
 
   if (!text) return;
 
-  const assignment = new Assignment(text, date);
-  assignments.push(assignment);
+  assignments.push({ text, date });
   Storage.set("assignments", assignments);
 
   renderAssignments();
@@ -66,13 +68,12 @@ function addAssignment() {
 }
 
 function renderAssignments() {
-  assignments = Storage.get("assignments");
   const list = document.getElementById("assignmentList");
   list.innerHTML = "";
 
   assignments.forEach((a, i) => {
     const li = document.createElement("li");
-    li.textContent = `${a.text} (Due: ${a.date}) `;
+    li.textContent = `${a.text} (Due: ${a.date || "No date"}) `;
 
     const doneBtn = document.createElement("button");
     doneBtn.textContent = "Done";
@@ -93,28 +94,35 @@ function completeAssignment(index) {
   renderAssignments();
 }
 
-// ==== TASKS ====
+// ==== PLANNER (was called "Tasks" in JS but "Planner" in HTML) ====
+document.getElementById("plannerForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  addTask();
+});
+
 function addTask() {
-  const input = document.getElementById("taskInput");
-  const text = input.value.trim();
+  const taskInput = document.getElementById("plannerTask"); // Fixed: was "taskInput"
+  const timeInput = document.getElementById("plannerTime");
+  const text = taskInput.value.trim();
+  const time = timeInput.value;
+
   if (!text) return;
 
-  const task = new Task(text);
-  tasks.push(task);
+  tasks.push({ text, time, completed: false });
   Storage.set("tasks", tasks);
 
   renderTasks();
-  input.value = "";
+  taskInput.value = "";
+  timeInput.value = "";
 }
 
 function renderTasks() {
-  tasks = Storage.get("tasks");
-  const list = document.getElementById("taskList");
+  const list = document.getElementById("plannerList"); // Fixed: was "taskList"
   list.innerHTML = "";
 
   tasks.forEach((t, i) => {
     const li = document.createElement("li");
-    li.textContent = t.text + " ";
+    li.textContent = `${t.text}${t.time ? " at " + t.time : ""} `;
 
     const doneBtn = document.createElement("button");
     doneBtn.textContent = "Done";
@@ -133,83 +141,88 @@ function completeTask(index) {
   renderTasks();
 }
 
-// ==== GRADES ====
-function addGrade() {
-  const input = document.getElementById("gradeInput");
-  const value = parseFloat(input.value);
-  if (isNaN(value)) return;
+// ==== GRADE CALCULATOR ====
+document.getElementById("gradeForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  calculateGrades();
+});
 
-  const grade = new Grade(value);
-  grades.push(grade);
-  Storage.set("grades", grades);
+function calculateGrades() {
+  // HTML uses multiple inputs with class "gradeInput" (not a single id)
+  const inputs = document.querySelectorAll(".gradeInput");
+  const values = [];
 
-  if (grades.length > 0) {
-    const avg = grades.reduce((sum, g) => sum + g.value, 0) / grades.length;
-    document.getElementById("averageGrade").textContent = avg.toFixed(2);
-  }
+  inputs.forEach(input => {
+    const val = parseFloat(input.value);
+    if (!isNaN(val)) values.push(val);
+  });
 
-  input.value = "";
+  if (values.length === 0) return;
+
+  const avg = values.reduce((sum, v) => sum + v, 0) / values.length;
+  document.getElementById("averageGrade").textContent = avg.toFixed(2);
 }
 
-// ==== TIMER ====
-let time = 1500; // 25 minutes
-let timerInterval;
+// ==== POMODORO TIMER ====
+// HTML has separate <span id="minutes"> and <span id="seconds">, not a single #timer
+let timeLeft = 1500; // 25 minutes in seconds
+let timerInterval = null;
+let isOnBreak = false;
 
-function startTimer() {
-  clearInterval(timerInterval);
+function updateTimerDisplay() {
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  document.getElementById("minutes").textContent = String(mins).padStart(2, "0");
+  document.getElementById("seconds").textContent = String(secs).padStart(2, "0");
+
+  // Also update Focus Mode display if it's visible
+  const focusTimerEl = document.getElementById("focusTimer");
+  if (focusTimerEl) {
+    focusTimerEl.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+}
+
+document.getElementById("startTimer").addEventListener("click", () => {
+  if (timerInterval) return; // Already running
   timerInterval = setInterval(() => {
-    time--;
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    document.getElementById("timer").textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    timeLeft--;
+    updateTimerDisplay();
 
-    if (time <= 0) {
+    if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      studyMinutes += 25;
-      document.getElementById("studyTime").textContent = studyMinutes;
-      alert("Break Time!");
-      time = 300; // 5 minutes break
+      timerInterval = null;
+
+      if (!isOnBreak) {
+        studyMinutes += 25;
+        document.getElementById("studyTime").textContent = studyMinutes + " min";
+        alert("Great work! Time for a 5-minute break.");
+        timeLeft = 300; // 5 min break
+        isOnBreak = true;
+      } else {
+        alert("Break over! Back to work.");
+        timeLeft = 1500; // 25 min work
+        isOnBreak = false;
+      }
+
+      updateTimerDisplay();
     }
   }, 1000);
-}
+});
 
-function resetTimer() {
+document.getElementById("pauseTimer").addEventListener("click", () => {
   clearInterval(timerInterval);
-  time = 1500;
-  document.getElementById("timer").textContent = "25:00";
-}
+  timerInterval = null;
+});
 
-// ==== FOCUS MODE ====
-function focusMode() {
-  document.body.innerHTML = "";
-  const container = document.createElement("div");
-  container.style = "display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-size:40px";
-
-  const timerEl = document.createElement("div");
-  timerEl.id = "timer";
-  timerEl.textContent = "25:00";
-
-  const message = document.createElement("p");
-  message.textContent = "Success is built in hours of focus.";
-
-  const exitBtn = document.createElement("button");
-  exitBtn.textContent = "Exit";
-  exitBtn.addEventListener("click", () => location.reload());
-
-  container.appendChild(timerEl);
-  container.appendChild(message);
-  container.appendChild(exitBtn);
-  document.body.appendChild(container);
-}
-
-// ==== DARK MODE ====
-document.getElementById("darkModeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
+document.getElementById("resetTimer").addEventListener("click", () => {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timeLeft = 1500;
+  isOnBreak = false;
+  updateTimerDisplay();
 });
 
 // ==== INITIAL RENDER ====
-assignments = Storage.get("assignments");
-tasks = Storage.get("tasks");
-grades = Storage.get("grades");
 renderAssignments();
 renderTasks();
+updateTimerDisplay();

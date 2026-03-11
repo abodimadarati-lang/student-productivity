@@ -8,7 +8,7 @@
 :root {
   --bg:        #f4f4ef;
   --surface:   #ffffff;
-  --surface2:  #ebebе6;
+  --surface2:  #ebebeb;
   --border:    #e2e2dc;
   --accent:    #3b5bdb;
   --accent-hover: #2f4ac4;
@@ -257,6 +257,19 @@ body {
   font-weight: 800;
   color: var(--accent);
   line-height: 1;
+}
+
+/* daily quote on the dashboard */
+.daily-quote-box {
+  margin-top: 1.5rem;
+  padding: 1.1rem 1.5rem;
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: .95rem;
+  font-style: italic;
+  color: var(--muted);
+  box-shadow: var(--shadow);
 }
 
 

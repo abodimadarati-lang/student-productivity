@@ -510,33 +510,6 @@ document.getElementById("timer-reset-btn").addEventListener("click", () => {
 });
 
 
-// MOTIVATIONAL QUOTES
-// changes once per day based on the date so it feels fresh
-
-const dailyQuotes = [
-  "The secret of getting ahead is getting started.",
-  "Small daily improvements lead to stunning results.",
-  "You don't have to be great to start, but you have to start to be great.",
-  "Study hard, for the well is deep and our brains are shallow.",
-  "Success is the sum of small efforts repeated day in and day out.",
-  "Believe you can and you're halfway there.",
-  "Don't watch the clock — do what it does. Keep going.",
-  "Push yourself, because no one else is going to do it for you.",
-  "Great things never come from comfort zones.",
-  "The harder you work, the luckier you get.",
-  "Education is the most powerful weapon you can use to change the world.",
-  "Dream it. Wish it. Do it."
-];
-
-function showDailyQuote() {
-  const el = document.getElementById("daily-quote-text");
-  if (!el) return;
-  // uses the day of the month to pick a quote so it rotates daily
-  const idx = new Date().getDate() % dailyQuotes.length;
-  el.textContent = "\u201C" + dailyQuotes[idx] + "\u201D";
-}
-
-
 // date helper functions
 
 // strips the time part off a date so comparisons dont get messed up
@@ -570,4 +543,3 @@ renderFlashcards();
 renderExamGrid();
 refreshDashboard();
 updateClockDisplay();
-showDailyQuote();

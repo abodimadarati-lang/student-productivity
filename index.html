@@ -1,202 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProdDash – Student Productivity</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProdDash</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div class="container">
+<div class="container">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">ProdDash</div>
-      <nav>
-        <ul>
-          <li><button data-section="dashboard"  class="nav-btn active">📊 Dashboard</button></li>
-          <li><button data-section="assignments" class="nav-btn">📝 Assignments</button></li>
-          <li><button data-section="planner"     class="nav-btn">🗓 Planner</button></li>
-          <li><button data-section="timer"       class="nav-btn">⏱ Pomodoro Timer</button></li>
-          <li><button data-section="grades"      class="nav-btn">🔢 Grade Calculator</button></li>
-          <li><button data-section="gpa"         class="nav-btn">🎓 GPA Calculator</button></li>
-          <li><button data-section="flashcards"  class="nav-btn">🃏 Flashcards</button></li>
-          <li><button data-section="exams"       class="nav-btn">📅 Exam Countdown</button></li>
-          <li><button data-section="focus"       class="nav-btn">🎯 Focus Mode</button></li>
-        </ul>
-      </nav>
-      <div class="sidebar-footer">
-        <label class="toggle-label">
-          <input type="checkbox" id="darkModeSwitch">
-          <span class="toggle-track"><span class="toggle-thumb"></span></span>
-          Dark Mode
-        </label>
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="logo">ProdDash</div>
+    <nav>
+      <ul>
+        <li><button class="nav-btn active" data-section="dashboard">📊 Dashboard</button></li>
+        <li><button class="nav-btn" data-section="assignments">📝 Assignments</button></li>
+        <li><button class="nav-btn" data-section="planner">🗓 Planner</button></li>
+        <li><button class="nav-btn" data-section="timer">⏱ Pomodoro Timer</button></li>
+        <li><button class="nav-btn" data-section="grades">🔢 Grade Calc</button></li>
+        <li><button class="nav-btn" data-section="gpa">🎓 GPA Calc</button></li>
+        <li><button class="nav-btn" data-section="flashcards">🃏 Flashcards</button></li>
+        <li><button class="nav-btn" data-section="exams">📅 Exam Countdown</button></li>
+        <li><button class="nav-btn" data-section="focus">🎯 Focus Mode</button></li>
+      </ul>
+    </nav>
+    <div class="sidebar-bottom">
+      <label class="dm-label">
+        <input type="checkbox" id="darkToggle" />
+        <span class="dm-track"><span class="dm-thumb"></span></span>
+        Dark Mode
+      </label>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <h2>Welcome back 👋</h2>
+      <p class="sub">Your productivity at a glance.</p>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-lbl">Assignments Left</div><div class="stat-val" id="assignmentsRemaining">0</div></div>
+        <div class="stat-card"><div class="stat-lbl">Tasks Completed</div><div class="stat-val" id="tasksCompleted">0</div></div>
+        <div class="stat-card"><div class="stat-lbl">Study Time</div><div class="stat-val" id="studyTime">0 min</div></div>
+        <div class="stat-card"><div class="stat-lbl">Next Exam</div><div class="stat-val" id="nextExamDash">—</div></div>
       </div>
-    </aside>
+    </section>
 
-    <!-- MAIN -->
-    <main class="main-content">
+    <!-- ASSIGNMENTS -->
+    <section id="assignments" class="section">
+      <h2>Assignments</h2>
+      <p class="sub">Track homework and due dates.</p>
+      <form id="assignmentForm" class="row-form">
+        <input type="text"  id="assignmentInput" placeholder="Assignment name" required />
+        <input type="date"  id="assignmentDate" required />
+        <button type="submit">Add</button>
+      </form>
+      <ul id="assignmentList" class="item-list"></ul>
+    </section>
 
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="section active">
-        <h2>Welcome back! 👋</h2>
-        <p class="subtitle">Here's your productivity snapshot.</p>
-        <div class="stat-cards">
-          <div class="stat-card">
-            <div class="stat-label">Assignments Left</div>
-            <div class="stat-value" id="assignmentsRemaining">0</div>
+    <!-- PLANNER -->
+    <section id="planner" class="section">
+      <h2>Daily Planner</h2>
+      <p class="sub">Plan your study tasks for today.</p>
+      <form id="plannerForm" class="row-form">
+        <input type="text" id="plannerTask" placeholder="Task description" required />
+        <input type="time" id="plannerTime" required />
+        <button type="submit">Add</button>
+      </form>
+      <ul id="plannerList" class="item-list"></ul>
+    </section>
+
+    <!-- POMODORO -->
+    <section id="timer" class="section">
+      <h2>Pomodoro Timer</h2>
+      <p class="sub">25 min focus · 5 min break.</p>
+      <div class="timer-display"><span id="timerMin">25</span>:<span id="timerSec">00</span></div>
+      <div class="timer-mode" id="timerMode">Focus Session</div>
+      <div class="timer-btns">
+        <button id="btnStart">▶ Start</button>
+        <button id="btnPause" class="ghost">⏸ Pause</button>
+        <button id="btnReset" class="ghost">↺ Reset</button>
+      </div>
+    </section>
+
+    <!-- GRADE CALC -->
+    <section id="grades" class="section">
+      <h2>Grade Calculator</h2>
+      <p class="sub">Enter up to three grades to get your average.</p>
+      <form id="gradeForm" class="row-form">
+        <input type="number" class="gradeInput" placeholder="Grade 1" min="0" max="100" required />
+        <input type="number" class="gradeInput" placeholder="Grade 2" min="0" max="100" />
+        <input type="number" class="gradeInput" placeholder="Grade 3" min="0" max="100" />
+        <button type="submit">Calculate</button>
+      </form>
+      <div class="result-box">Average: <strong id="avgGrade">—</strong>%</div>
+    </section>
+
+    <!-- GPA CALC -->
+    <section id="gpa" class="section">
+      <h2>GPA Calculator</h2>
+      <p class="sub">Add courses to calculate your cumulative GPA.</p>
+      <form id="gpaForm" class="row-form">
+        <input type="text"   id="gpaCourse"  placeholder="Course name" required />
+        <select id="gpaGrade" required>
+          <option value="" disabled selected>Grade</option>
+          <option value="4.0">A</option>
+          <option value="3.7">A-</option>
+          <option value="3.3">B+</option>
+          <option value="3.0">B</option>
+          <option value="2.7">B-</option>
+          <option value="2.3">C+</option>
+          <option value="2.0">C</option>
+          <option value="1.7">C-</option>
+          <option value="1.0">D</option>
+          <option value="0.0">F</option>
+        </select>
+        <input type="number" id="gpaCredits" placeholder="Credits" min="1" max="6" required />
+        <button type="submit">Add</button>
+      </form>
+      <ul id="gpaCourseList" class="item-list"></ul>
+      <div class="result-box">GPA: <strong id="gpaResult">—</strong></div>
+    </section>
+
+    <!-- FLASHCARDS -->
+    <section id="flashcards" class="section">
+      <h2>Flashcards</h2>
+      <p class="sub">Add cards, click to flip, use arrows to navigate.</p>
+      <form id="fcForm" class="row-form">
+        <input type="text" id="fcFrontInput" placeholder="Question / Front" required />
+        <input type="text" id="fcBackInput"  placeholder="Answer / Back"    required />
+        <button type="submit">Add Card</button>
+      </form>
+      <p id="fcEmpty" class="empty-note">No flashcards yet — add one above!</p>
+      <div id="fcStudy" class="fc-study" style="display:none;">
+        <div id="fcCard" class="fc-card">
+          <div class="fc-inner">
+            <div class="fc-front"><p id="fcFrontText"></p></div>
+            <div class="fc-back"><p id="fcBackText"></p></div>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Tasks Completed</div>
-            <div class="stat-value" id="tasksCompleted">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Study Time</div>
-            <div class="stat-value" id="studyTime">0 min</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Next Exam</div>
-            <div class="stat-value" id="nextExamDash">—</div>
-          </div>
         </div>
-      </section>
-
-      <!-- ASSIGNMENTS -->
-      <section id="assignments" class="section">
-        <h2>Assignments</h2>
-        <p class="subtitle">Track your homework and due dates.</p>
-        <form id="assignmentForm" class="input-row">
-          <input type="text"  id="assignmentInput" placeholder="Assignment name" required>
-          <input type="date"  id="assignmentDate" required>
-          <button type="submit">Add</button>
-        </form>
-        <ul id="assignmentList" class="item-list"></ul>
-      </section>
-
-      <!-- PLANNER -->
-      <section id="planner" class="section">
-        <h2>Daily Planner</h2>
-        <p class="subtitle">Plan your study tasks for the day.</p>
-        <form id="plannerForm" class="input-row">
-          <input type="text" id="plannerTask" placeholder="Task description" required>
-          <input type="time" id="plannerTime" required>
-          <button type="submit">Add</button>
-        </form>
-        <ul id="plannerList" class="item-list"></ul>
-      </section>
-
-      <!-- POMODORO TIMER -->
-      <section id="timer" class="section">
-        <h2>Pomodoro Timer</h2>
-        <p class="subtitle">25 minutes focus, 5 minutes break.</p>
-        <div class="timer-display">
-          <span id="minutes">25</span>:<span id="seconds">00</span>
+        <p class="fc-hint">Click card to flip</p>
+        <div class="fc-nav">
+          <button id="fcPrev" class="ghost">← Prev</button>
+          <span id="fcCount">1 / 1</span>
+          <button id="fcNext" class="ghost">Next →</button>
         </div>
-        <div class="timer-label" id="timerLabel">Focus Session</div>
-        <div class="timer-controls">
-          <button id="startTimer">▶ Start</button>
-          <button id="pauseTimer" class="btn-ghost">⏸ Pause</button>
-          <button id="resetTimer" class="btn-ghost">↺ Reset</button>
+        <div class="fc-actions">
+          <button id="fcShuffle" class="outline">🔀 Shuffle</button>
+          <button id="fcDelete"  class="danger-btn">🗑 Delete</button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- GRADE CALCULATOR -->
-      <section id="grades" class="section">
-        <h2>Grade Calculator</h2>
-        <p class="subtitle">Enter up to three grades to find your average.</p>
-        <form id="gradeForm" class="input-row">
-          <input type="number" class="gradeInput" placeholder="Grade 1" min="0" max="100" required>
-          <input type="number" class="gradeInput" placeholder="Grade 2" min="0" max="100">
-          <input type="number" class="gradeInput" placeholder="Grade 3" min="0" max="100">
-          <button type="submit">Calculate</button>
-        </form>
-        <div class="result-box">
-          Average: <strong id="averageGrade">—</strong>%
-        </div>
-      </section>
+    <!-- EXAM COUNTDOWN -->
+    <section id="exams" class="section">
+      <h2>Exam Countdown</h2>
+      <p class="sub">See how many days until each exam.</p>
+      <form id="examForm" class="row-form">
+        <input type="text" id="examName" placeholder="Exam name" required />
+        <input type="date" id="examDate" required />
+        <button type="submit">Add Exam</button>
+      </form>
+      <p id="examEmpty" class="empty-note">No exams added yet.</p>
+      <div id="examGrid" class="exam-grid"></div>
+    </section>
 
-      <!-- GPA CALCULATOR -->
-      <section id="gpa" class="section">
-        <h2>GPA Calculator</h2>
-        <p class="subtitle">Add your courses to calculate your cumulative GPA.</p>
-        <form id="gpaForm" class="input-row">
-          <input type="text" id="gpaCourse" placeholder="Course name" required>
-          <select id="gpaGrade" required>
-            <option value="" disabled selected>Grade</option>
-            <option value="4.0">A</option>
-            <option value="3.7">A-</option>
-            <option value="3.3">B+</option>
-            <option value="3.0">B</option>
-            <option value="2.7">B-</option>
-            <option value="2.3">C+</option>
-            <option value="2.0">C</option>
-            <option value="1.7">C-</option>
-            <option value="1.0">D</option>
-            <option value="0.0">F</option>
-          </select>
-          <input type="number" id="gpaCredits" placeholder="Credits" min="1" max="6" required>
-          <button type="submit">Add</button>
-        </form>
-        <ul id="gpaCourseList" class="item-list"></ul>
-        <div class="result-box">
-          GPA: <strong id="gpaResult">—</strong>
-        </div>
-      </section>
+    <!-- FOCUS MODE -->
+    <section id="focus" class="section">
+      <h2>Focus Mode</h2>
+      <p class="sub">The Pomodoro timer keeps running — stay locked in.</p>
+      <div class="focus-wrap">
+        <div class="focus-time" id="focusDisplay">25:00</div>
+        <p class="focus-quote">"Success is the sum of small efforts, repeated."</p>
+      </div>
+    </section>
 
-      <!-- FLASHCARDS -->
-      <section id="flashcards" class="section">
-        <h2>Flashcards</h2>
-        <p class="subtitle">Create cards, click to flip, use arrows to navigate.</p>
-        <form id="flashcardForm" class="input-row">
-          <input type="text" id="flashcardFront" placeholder="Question (front)" required>
-          <input type="text" id="flashcardBack"  placeholder="Answer (back)" required>
-          <button type="submit">Add Card</button>
-        </form>
-        <p id="fcEmpty" class="empty-note">No flashcards yet — add one above!</p>
-        <div id="flashcardStudy" class="fc-study" style="display:none">
-          <div id="flashcard" class="flashcard">
-            <div class="flashcard-inner">
-              <div class="flashcard-front"><p id="fcFront"></p></div>
-              <div class="flashcard-back"><p id="fcBack"></p></div>
-            </div>
-          </div>
-          <p class="fc-hint">Click card to flip</p>
-          <div class="fc-nav">
-            <button id="fcPrev" class="btn-ghost">← Prev</button>
-            <span id="fcCounter">1 / 1</span>
-            <button id="fcNext" class="btn-ghost">Next →</button>
-          </div>
-          <button id="fcShuffle" class="btn-outline">🔀 Shuffle</button>
-          <button id="fcDelete" class="btn-danger">🗑 Delete Card</button>
-        </div>
-      </section>
-
-      <!-- EXAM COUNTDOWN -->
-      <section id="exams" class="section">
-        <h2>Exam Countdown</h2>
-        <p class="subtitle">See how many days until your next exams.</p>
-        <form id="examForm" class="input-row">
-          <input type="text" id="examName" placeholder="Exam name" required>
-          <input type="date" id="examDate" required>
-          <button type="submit">Add Exam</button>
-        </form>
-        <div id="examGrid" class="exam-grid"></div>
-        <p id="examEmpty" class="empty-note">No exams added yet.</p>
-      </section>
-
-      <!-- FOCUS MODE -->
-      <section id="focus" class="section">
-        <h2>Focus Mode</h2>
-        <p class="subtitle">The timer keeps running — stay locked in.</p>
-        <div class="focus-display">
-          <div class="focus-timer" id="focusTimer">25:00</div>
-          <p class="focus-quote" id="motivationalQuote">"Success is the sum of small efforts repeated."</p>
-        </div>
-      </section>
-
-    </main>
-  </div>
-  <script src="script.js"></script>
+  </main>
+</div>
+<script src="script.js"></script>
 </body>
 </html>

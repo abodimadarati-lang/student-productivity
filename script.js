@@ -1,34 +1,29 @@
-// ============================================================
-//  STORAGE — all data lives in localStorage so it survives
-//  page refreshes. Every feature reads AND writes here.
-// ============================================================
-const S = {
-  get(key, fallback = []) {
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch (e) { return fallback; }
-  },
-  set(key, val) {
-    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
-  }
-};
+/* =============================================================
+   PRODDASH — script.js
+   Every feature wired up. Every ID matches index.html exactly.
+   All data saved to localStorage — survives page refresh.
+============================================================= */
 
-// ============================================================
-//  APP STATE  (loaded from localStorage on every page load)
-// ============================================================
-let assignments   = S.get("assignments");
-let tasks         = S.get("tasks");
-let gpaCourses    = S.get("gpaCourses");
-let flashcards    = S.get("flashcards");
-let exams         = S.get("exams");
-let tasksCompleted = S.get("tasksCompleted", 0);
-let studyMinutes  = S.get("studyMinutes", 0);
-let fcIndex       = 0;
+// ── STORAGE ──────────────────────────────────────────────────
+function load(key, def) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : def; }
+  catch { return def; }
+}
+function save(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
 
-// ============================================================
-//  NAVIGATION
-// ============================================================
+// ── STATE ─────────────────────────────────────────────────────
+let assignments    = load("assignments",    []);
+let tasks          = load("tasks",          []);
+let gpaCourses     = load("gpaCourses",     []);
+let flashcards     = load("flashcards",     []);
+let exams          = load("exams",          []);
+let tasksCompleted = load("tasksCompleted", 0);
+let studyMinutes   = load("studyMinutes",   0);
+let fcIndex        = 0;
+
+// ── NAVIGATION ────────────────────────────────────────────────
 document.querySelectorAll(".nav-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
@@ -38,147 +33,120 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
   });
 });
 
-// ============================================================
-//  DARK MODE
-// ============================================================
-const darkSwitch = document.getElementById("darkModeSwitch");
-// Restore previous preference
-if (S.get("darkMode", false)) {
+// ── DARK MODE (persisted) ─────────────────────────────────────
+const darkToggle = document.getElementById("darkToggle");
+if (load("darkMode", false)) {
   document.body.classList.add("dark");
-  darkSwitch.checked = true;
+  darkToggle.checked = true;
 }
-darkSwitch.addEventListener("change", () => {
-  document.body.classList.toggle("dark", darkSwitch.checked);
-  S.set("darkMode", darkSwitch.checked);
+darkToggle.addEventListener("change", () => {
+  document.body.classList.toggle("dark", darkToggle.checked);
+  save("darkMode", darkToggle.checked);
 });
 
-// ============================================================
-//  DASHBOARD — update stat cards
-// ============================================================
-function updateDashboard() {
+// ── DASHBOARD ─────────────────────────────────────────────────
+function refreshDashboard() {
   document.getElementById("assignmentsRemaining").textContent = assignments.length;
-  document.getElementById("tasksCompleted").textContent = tasksCompleted;
-  document.getElementById("studyTime").textContent = studyMinutes + " min";
-  updateNextExam();
+  document.getElementById("tasksCompleted").textContent       = tasksCompleted;
+  document.getElementById("studyTime").textContent            = studyMinutes + " min";
+
+  // next upcoming exam
+  const today = dayStart(new Date());
+  const next  = exams
+    .map(e => ({ ...e, d: diffDays(today, new Date(e.date)) }))
+    .filter(e => e.d >= 0)
+    .sort((a, b) => a.d - b.d)[0];
+  document.getElementById("nextExamDash").textContent = next ? next.d + "d" : "—";
 }
 
-function updateNextExam() {
-  const el = document.getElementById("nextExamDash");
-  const today = startOfDay(new Date());
-  const upcoming = exams
-    .map(e => ({ ...e, diff: dayDiff(today, new Date(e.date)) }))
-    .filter(e => e.diff >= 0)
-    .sort((a, b) => a.diff - b.diff);
-  el.textContent = upcoming.length ? upcoming[0].diff + "d" : "—";
-}
-
-// ============================================================
-//  ASSIGNMENTS
-// ============================================================
-document.getElementById("assignmentForm").addEventListener("submit", e => {
+// ── ASSIGNMENTS ───────────────────────────────────────────────
+document.getElementById("assignmentForm").addEventListener("submit", function(e) {
   e.preventDefault();
-  const nameEl = document.getElementById("assignmentInput");
-  const dateEl = document.getElementById("assignmentDate");
-  if (!nameEl.value.trim()) return;
-  assignments.push({ text: nameEl.value.trim(), date: dateEl.value });
-  S.set("assignments", assignments);
-  nameEl.value = "";
-  dateEl.value = "";
+  const inp  = document.getElementById("assignmentInput");
+  const datE = document.getElementById("assignmentDate");
+  if (!inp.value.trim()) return;
+  assignments.push({ text: inp.value.trim(), date: datE.value });
+  save("assignments", assignments);
+  inp.value = ""; datE.value = "";
   renderAssignments();
-  updateDashboard();
+  refreshDashboard();
 });
 
 function renderAssignments() {
-  const list = document.getElementById("assignmentList");
-  list.innerHTML = "";
+  const ul = document.getElementById("assignmentList");
+  ul.innerHTML = "";
   if (!assignments.length) {
-    list.innerHTML = '<li class="empty-item">No assignments yet.</li>';
+    ul.innerHTML = '<li class="empty-item">No assignments yet.</li>';
     return;
   }
   assignments.forEach((a, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${a.text} <em>${a.date ? "· Due " + formatDate(a.date) : ""}</em></span>`;
+    const li  = document.createElement("li");
+    const sp  = document.createElement("span");
+    sp.innerHTML = a.text + (a.date ? ' <em>· Due ' + fmtDate(a.date) + '</em>' : '');
     const btn = document.createElement("button");
-    btn.className = "btn-done";
-    btn.textContent = "✓ Done";
+    btn.className = "done-btn"; btn.textContent = "✓ Done";
     btn.onclick = () => {
-      assignments.splice(i, 1);
-      S.set("assignments", assignments);
-      tasksCompleted++;
-      S.set("tasksCompleted", tasksCompleted);
-      renderAssignments();
-      updateDashboard();
+      assignments.splice(i, 1); save("assignments", assignments);
+      tasksCompleted++; save("tasksCompleted", tasksCompleted);
+      renderAssignments(); refreshDashboard();
     };
-    li.appendChild(btn);
-    list.appendChild(li);
+    li.appendChild(sp); li.appendChild(btn); ul.appendChild(li);
   });
 }
 
-// ============================================================
-//  PLANNER
-// ============================================================
-document.getElementById("plannerForm").addEventListener("submit", e => {
+// ── PLANNER ───────────────────────────────────────────────────
+document.getElementById("plannerForm").addEventListener("submit", function(e) {
   e.preventDefault();
-  const taskEl = document.getElementById("plannerTask");
-  const timeEl = document.getElementById("plannerTime");
-  if (!taskEl.value.trim()) return;
-  tasks.push({ text: taskEl.value.trim(), time: timeEl.value });
-  S.set("tasks", tasks);
-  taskEl.value = "";
-  timeEl.value = "";
-  renderTasks();
+  const inp  = document.getElementById("plannerTask");
+  const tim  = document.getElementById("plannerTime");
+  if (!inp.value.trim()) return;
+  tasks.push({ text: inp.value.trim(), time: tim.value });
+  save("tasks", tasks);
+  inp.value = ""; tim.value = "";
+  renderPlanner();
 });
 
-function renderTasks() {
-  const list = document.getElementById("plannerList");
-  list.innerHTML = "";
+function renderPlanner() {
+  const ul = document.getElementById("plannerList");
+  ul.innerHTML = "";
   if (!tasks.length) {
-    list.innerHTML = '<li class="empty-item">No tasks yet.</li>';
+    ul.innerHTML = '<li class="empty-item">No tasks yet.</li>';
     return;
   }
   tasks.forEach((t, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${t.text} <em>${t.time ? "· " + t.time : ""}</em></span>`;
+    const li  = document.createElement("li");
+    const sp  = document.createElement("span");
+    sp.innerHTML = t.text + (t.time ? ' <em>· ' + t.time + '</em>' : '');
     const btn = document.createElement("button");
-    btn.className = "btn-done";
-    btn.textContent = "✓ Done";
+    btn.className = "done-btn"; btn.textContent = "✓ Done";
     btn.onclick = () => {
-      tasks.splice(i, 1);
-      S.set("tasks", tasks);
-      tasksCompleted++;
-      S.set("tasksCompleted", tasksCompleted);
-      renderTasks();
-      updateDashboard();
+      tasks.splice(i, 1); save("tasks", tasks);
+      tasksCompleted++; save("tasksCompleted", tasksCompleted);
+      renderPlanner(); refreshDashboard();
     };
-    li.appendChild(btn);
-    list.appendChild(li);
+    li.appendChild(sp); li.appendChild(btn); ul.appendChild(li);
   });
 }
 
-// ============================================================
-//  GRADE CALCULATOR
-// ============================================================
-document.getElementById("gradeForm").addEventListener("submit", e => {
+// ── GRADE CALCULATOR ─────────────────────────────────────────
+document.getElementById("gradeForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const vals = [...document.querySelectorAll(".gradeInput")]
-    .map(i => parseFloat(i.value))
-    .filter(v => !isNaN(v));
+    .map(i => parseFloat(i.value)).filter(v => !isNaN(v));
   if (!vals.length) return;
   const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
-  document.getElementById("averageGrade").textContent = avg.toFixed(2);
+  document.getElementById("avgGrade").textContent = avg.toFixed(2);
 });
 
-// ============================================================
-//  GPA CALCULATOR
-// ============================================================
-document.getElementById("gpaForm").addEventListener("submit", e => {
+// ── GPA CALCULATOR ────────────────────────────────────────────
+document.getElementById("gpaForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const course   = document.getElementById("gpaCourse").value.trim();
   const grade    = parseFloat(document.getElementById("gpaGrade").value);
   const credits  = parseFloat(document.getElementById("gpaCredits").value);
   if (!course || isNaN(grade) || isNaN(credits)) return;
   gpaCourses.push({ course, grade, credits });
-  S.set("gpaCourses", gpaCourses);
+  save("gpaCourses", gpaCourses);
   document.getElementById("gpaCourse").value  = "";
   document.getElementById("gpaGrade").value   = "";
   document.getElementById("gpaCredits").value = "";
@@ -186,68 +154,59 @@ document.getElementById("gpaForm").addEventListener("submit", e => {
 });
 
 function renderGPA() {
-  const list = document.getElementById("gpaCourseList");
-  list.innerHTML = "";
-  let totalPts = 0, totalCr = 0;
-
+  const ul = document.getElementById("gpaCourseList");
+  ul.innerHTML = "";
+  let pts = 0, crs = 0;
   gpaCourses.forEach((c, i) => {
-    totalPts += c.grade * c.credits;
-    totalCr  += c.credits;
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${c.course} — <strong>${gradeLabel(c.grade)}</strong> (${c.credits} cr)</span>`;
+    pts += c.grade * c.credits;
+    crs += c.credits;
+    const li  = document.createElement("li");
+    const sp  = document.createElement("span");
+    sp.innerHTML = c.course + ' — <strong>' + gradeLabel(c.grade) + '</strong> (' + c.credits + ' cr)';
     const btn = document.createElement("button");
-    btn.className = "btn-remove";
-    btn.textContent = "Remove";
+    btn.className = "done-btn"; btn.textContent = "Remove";
     btn.onclick = () => {
-      gpaCourses.splice(i, 1);
-      S.set("gpaCourses", gpaCourses);
-      renderGPA();
+      gpaCourses.splice(i, 1); save("gpaCourses", gpaCourses); renderGPA();
     };
-    li.appendChild(btn);
-    list.appendChild(li);
+    li.appendChild(sp); li.appendChild(btn); ul.appendChild(li);
   });
-
-  document.getElementById("gpaResult").textContent =
-    totalCr > 0 ? (totalPts / totalCr).toFixed(2) : "—";
+  document.getElementById("gpaResult").textContent = crs > 0 ? (pts / crs).toFixed(2) : "—";
 }
 
 function gradeLabel(v) {
-  return ({ 4.0:"A", 3.7:"A-", 3.3:"B+", 3.0:"B", 2.7:"B-",
-            2.3:"C+", 2.0:"C", 1.7:"C-", 1.0:"D", 0.0:"F" })[v] ?? v;
+  return ({4:"A",3.7:"A-",3.3:"B+",3:"B",2.7:"B-",2.3:"C+",2:"C",1.7:"C-",1:"D",0:"F"})[v] ?? v;
 }
 
-// ============================================================
-//  FLASHCARDS
-// ============================================================
-document.getElementById("flashcardForm").addEventListener("submit", e => {
+// ── FLASHCARDS ────────────────────────────────────────────────
+document.getElementById("fcForm").addEventListener("submit", function(e) {
   e.preventDefault();
-  const front = document.getElementById("flashcardFront").value.trim();
-  const back  = document.getElementById("flashcardBack").value.trim();
+  const front = document.getElementById("fcFrontInput").value.trim();
+  const back  = document.getElementById("fcBackInput").value.trim();
   if (!front || !back) return;
   flashcards.push({ front, back });
-  S.set("flashcards", flashcards);
-  document.getElementById("flashcardFront").value = "";
-  document.getElementById("flashcardBack").value  = "";
+  save("flashcards", flashcards);
+  document.getElementById("fcFrontInput").value = "";
+  document.getElementById("fcBackInput").value  = "";
   fcIndex = flashcards.length - 1;
-  renderFlashcard();
+  renderFC();
 });
 
-document.getElementById("flashcard").addEventListener("click", () => {
-  document.getElementById("flashcard").classList.toggle("flipped");
+document.getElementById("fcCard").addEventListener("click", () => {
+  document.getElementById("fcCard").classList.toggle("flipped");
 });
 
 document.getElementById("fcNext").addEventListener("click", () => {
   if (!flashcards.length) return;
   fcIndex = (fcIndex + 1) % flashcards.length;
-  document.getElementById("flashcard").classList.remove("flipped");
-  renderFlashcard();
+  document.getElementById("fcCard").classList.remove("flipped");
+  renderFC();
 });
 
 document.getElementById("fcPrev").addEventListener("click", () => {
   if (!flashcards.length) return;
   fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length;
-  document.getElementById("flashcard").classList.remove("flipped");
-  renderFlashcard();
+  document.getElementById("fcCard").classList.remove("flipped");
+  renderFC();
 });
 
 document.getElementById("fcShuffle").addEventListener("click", () => {
@@ -255,24 +214,24 @@ document.getElementById("fcShuffle").addEventListener("click", () => {
     const j = Math.floor(Math.random() * (i + 1));
     [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
   }
-  S.set("flashcards", flashcards);
+  save("flashcards", flashcards);
   fcIndex = 0;
-  document.getElementById("flashcard").classList.remove("flipped");
-  renderFlashcard();
+  document.getElementById("fcCard").classList.remove("flipped");
+  renderFC();
 });
 
 document.getElementById("fcDelete").addEventListener("click", () => {
   if (!flashcards.length) return;
   flashcards.splice(fcIndex, 1);
-  S.set("flashcards", flashcards);
+  save("flashcards", flashcards);
   fcIndex = Math.max(0, fcIndex - 1);
-  document.getElementById("flashcard").classList.remove("flipped");
-  renderFlashcard();
+  document.getElementById("fcCard").classList.remove("flipped");
+  renderFC();
 });
 
-function renderFlashcard() {
-  const study   = document.getElementById("flashcardStudy");
-  const empty   = document.getElementById("fcEmpty");
+function renderFC() {
+  const study = document.getElementById("fcStudy");
+  const empty = document.getElementById("fcEmpty");
   if (!flashcards.length) {
     study.style.display = "none";
     empty.style.display = "block";
@@ -280,150 +239,117 @@ function renderFlashcard() {
   }
   study.style.display = "flex";
   empty.style.display = "none";
-  document.getElementById("fcFront").textContent   = flashcards[fcIndex].front;
-  document.getElementById("fcBack").textContent    = flashcards[fcIndex].back;
-  document.getElementById("fcCounter").textContent = `${fcIndex + 1} / ${flashcards.length}`;
+  document.getElementById("fcFrontText").textContent = flashcards[fcIndex].front;
+  document.getElementById("fcBackText").textContent  = flashcards[fcIndex].back;
+  document.getElementById("fcCount").textContent     = (fcIndex + 1) + " / " + flashcards.length;
 }
 
-// ============================================================
-//  EXAM COUNTDOWN
-// ============================================================
-document.getElementById("examForm").addEventListener("submit", e => {
+// ── EXAM COUNTDOWN ────────────────────────────────────────────
+document.getElementById("examForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const name = document.getElementById("examName").value.trim();
   const date = document.getElementById("examDate").value;
   if (!name || !date) return;
   exams.push({ name, date });
-  S.set("exams", exams);
+  save("exams", exams);
   document.getElementById("examName").value = "";
   document.getElementById("examDate").value = "";
   renderExams();
-  updateNextExam();
+  refreshDashboard();
 });
 
 function renderExams() {
   const grid  = document.getElementById("examGrid");
   const empty = document.getElementById("examEmpty");
   grid.innerHTML = "";
-
-  const today  = startOfDay(new Date());
-  const sorted = [...exams].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  if (!sorted.length) { empty.style.display = "block"; return; }
+  if (!exams.length) { empty.style.display = "block"; return; }
   empty.style.display = "none";
 
+  const today  = dayStart(new Date());
+  const sorted = [...exams].sort((a, b) => new Date(a.date) - new Date(b.date));
+
   sorted.forEach((exam, si) => {
-    const diff = dayDiff(today, new Date(exam.date));
-    const label = diff < 0 ? "Passed" : diff === 0 ? "Today!" : `${diff} day${diff !== 1 ? "s" : ""}`;
+    const diff  = diffDays(today, new Date(exam.date));
+    const label = diff < 0 ? "Passed" : diff === 0 ? "Today!" : diff + " day" + (diff !== 1 ? "s" : "");
 
     const card = document.createElement("div");
-    card.className = "exam-card" + (diff >= 0 && diff <= 3 ? " urgent" : diff <= 7 ? " soon" : "");
+    card.className = "exam-card" +
+      (diff >= 0 && diff <= 3 ? " urgent" : (diff > 3 && diff <= 7 ? " soon" : ""));
 
-    card.innerHTML = `
-      <div class="exam-days">${label}</div>
-      <div class="exam-name">${exam.name}</div>
-      <div class="exam-date">${formatDate(exam.date)}</div>
-    `;
-    const removeBtn = document.createElement("button");
-    removeBtn.className = "btn-remove";
-    removeBtn.textContent = "Remove";
-    removeBtn.onclick = () => {
-      // find original index by matching name+date
-      const oi = exams.findIndex(ex => ex.name === sorted[si].name && ex.date === sorted[si].date);
-      if (oi !== -1) exams.splice(oi, 1);
-      S.set("exams", exams);
-      renderExams();
-      updateNextExam();
+    const daysEl = document.createElement("div"); daysEl.className = "ex-days"; daysEl.textContent = label;
+    const nameEl = document.createElement("div"); nameEl.className = "ex-name"; nameEl.textContent = exam.name;
+    const dateEl = document.createElement("div"); dateEl.className = "ex-date"; dateEl.textContent = fmtDate(exam.date);
+    const btn    = document.createElement("button"); btn.className = "done-btn"; btn.textContent = "Remove";
+    btn.onclick  = () => {
+      const oi = exams.findIndex(x => x.name === sorted[si].name && x.date === sorted[si].date);
+      if (oi > -1) { exams.splice(oi, 1); save("exams", exams); }
+      renderExams(); refreshDashboard();
     };
-    card.appendChild(removeBtn);
+
+    card.appendChild(daysEl); card.appendChild(nameEl);
+    card.appendChild(dateEl); card.appendChild(btn);
     grid.appendChild(card);
   });
 }
 
-// ============================================================
-//  POMODORO TIMER
-// ============================================================
-let timeLeft      = 1500; // 25 min
-let timerRunning  = false;
-let timerInterval = null;
-let onBreak       = false;
+// ── POMODORO ──────────────────────────────────────────────────
+let timeLeft = 1500, timerOn = false, timerIv = null, onBreak = false;
 
-function setTimerDisplay(secs) {
-  const m = String(Math.floor(secs / 60)).padStart(2, "0");
-  const s = String(secs % 60).padStart(2, "0");
-  document.getElementById("minutes").textContent   = m;
-  document.getElementById("seconds").textContent   = s;
-  document.getElementById("focusTimer").textContent = `${m}:${s}`;
+function updateTimerDisplay() {
+  const m = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+  const s = String(timeLeft % 60).padStart(2, "0");
+  document.getElementById("timerMin").textContent    = m;
+  document.getElementById("timerSec").textContent    = s;
+  document.getElementById("focusDisplay").textContent = m + ":" + s;
 }
 
-document.getElementById("startTimer").addEventListener("click", () => {
-  if (timerRunning) return;
-  timerRunning = true;
-  timerInterval = setInterval(() => {
+document.getElementById("btnStart").addEventListener("click", () => {
+  if (timerOn) return;
+  timerOn = true;
+  timerIv = setInterval(() => {
     timeLeft--;
-    setTimerDisplay(timeLeft);
+    updateTimerDisplay();
     if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      timerRunning = false;
+      clearInterval(timerIv); timerOn = false;
       if (!onBreak) {
-        studyMinutes += 25;
-        S.set("studyMinutes", studyMinutes);
-        updateDashboard();
+        studyMinutes += 25; save("studyMinutes", studyMinutes); refreshDashboard();
         alert("🎉 Session done! Take a 5-minute break.");
-        timeLeft = 300;
-        onBreak  = true;
-        document.getElementById("timerLabel").textContent = "Break Time";
+        timeLeft = 300; onBreak = true;
+        document.getElementById("timerMode").textContent = "Break Time";
       } else {
         alert("⏰ Break over! Back to work.");
-        timeLeft = 1500;
-        onBreak  = false;
-        document.getElementById("timerLabel").textContent = "Focus Session";
+        timeLeft = 1500; onBreak = false;
+        document.getElementById("timerMode").textContent = "Focus Session";
       }
-      setTimerDisplay(timeLeft);
+      updateTimerDisplay();
     }
   }, 1000);
 });
 
-document.getElementById("pauseTimer").addEventListener("click", () => {
-  clearInterval(timerInterval);
-  timerRunning = false;
+document.getElementById("btnPause").addEventListener("click", () => {
+  clearInterval(timerIv); timerOn = false;
 });
 
-document.getElementById("resetTimer").addEventListener("click", () => {
-  clearInterval(timerInterval);
-  timerRunning = false;
-  onBreak      = false;
-  timeLeft     = 1500;
-  document.getElementById("timerLabel").textContent = "Focus Session";
-  setTimerDisplay(timeLeft);
+document.getElementById("btnReset").addEventListener("click", () => {
+  clearInterval(timerIv); timerOn = false; onBreak = false; timeLeft = 1500;
+  document.getElementById("timerMode").textContent = "Focus Session";
+  updateTimerDisplay();
 });
 
-// ============================================================
-//  HELPERS
-// ============================================================
-function startOfDay(d) {
-  const c = new Date(d); c.setHours(0, 0, 0, 0); return c;
+// ── HELPERS ───────────────────────────────────────────────────
+function dayStart(d) { const c = new Date(d); c.setHours(0,0,0,0); return c; }
+function diffDays(from, to) { return Math.round((dayStart(to) - from) / 86400000); }
+function fmtDate(str) {
+  if (!str) return "";
+  const [y, m, d] = str.split("-");
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
 }
 
-function dayDiff(from, to) {
-  const t = startOfDay(to);
-  return Math.round((t - from) / 86400000);
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return "";
-  // dateStr is "YYYY-MM-DD" — parse without timezone shift
-  const [y, m, d] = dateStr.split("-");
-  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
-
-// ============================================================
-//  BOOT — render everything from saved data
-// ============================================================
+// ── BOOT ──────────────────────────────────────────────────────
 renderAssignments();
-renderTasks();
+renderPlanner();
 renderGPA();
-renderFlashcard();
+renderFC();
 renderExams();
-updateDashboard();
-setTimerDisplay(timeLeft);
+refreshDashboard();
+updateTimerDisplay();

@@ -4,15 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Productivity Dashboard</title>
-    <!-- Link to CSS -->
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts for modern typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Favicon -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <!-- Main Container -->
     <div class="container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -24,6 +20,9 @@
                     <li><button data-section="planner">Planner</button></li>
                     <li><button data-section="timer">Pomodoro Timer</button></li>
                     <li><button data-section="grades">Grade Calculator</button></li>
+                    <li><button data-section="gpa">GPA Calculator</button></li>
+                    <li><button data-section="flashcards">Flashcards</button></li>
+                    <li><button data-section="exams">Exam Countdown</button></li>
                     <li><button data-section="focus">Focus Mode</button></li>
                     <li><button data-section="stats">Statistics</button></li>
                 </ul>
@@ -37,7 +36,8 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Dashboard Section -->
+
+            <!-- Dashboard -->
             <section id="dashboard" class="section active">
                 <h2>Welcome, Student!</h2>
                 <p>Quick overview of your productivity today.</p>
@@ -54,10 +54,14 @@
                         <h3>Study Time</h3>
                         <span id="studyTime">0 min</span>
                     </div>
+                    <div class="card">
+                        <h3>Next Exam In</h3>
+                        <span id="nextExamDash">—</span>
+                    </div>
                 </div>
             </section>
 
-            <!-- Assignments Section -->
+            <!-- Assignments -->
             <section id="assignments" class="section">
                 <h2>Homework & Assignments</h2>
                 <form id="assignmentForm">
@@ -68,7 +72,7 @@
                 <ul id="assignmentList"></ul>
             </section>
 
-            <!-- Planner Section -->
+            <!-- Planner -->
             <section id="planner" class="section">
                 <h2>Daily Study Planner</h2>
                 <form id="plannerForm">
@@ -79,7 +83,7 @@
                 <ul id="plannerList"></ul>
             </section>
 
-            <!-- Pomodoro Timer Section -->
+            <!-- Pomodoro Timer -->
             <section id="timer" class="section">
                 <h2>Pomodoro Timer</h2>
                 <div class="timer-display">
@@ -92,7 +96,7 @@
                 </div>
             </section>
 
-            <!-- Grade Calculator Section -->
+            <!-- Grade Calculator -->
             <section id="grades" class="section">
                 <h2>Grade Calculator</h2>
                 <form id="gradeForm">
@@ -104,27 +108,94 @@
                 <p>Average Grade: <span id="averageGrade">0</span>%</p>
             </section>
 
-            <!-- Focus Mode Section -->
+            <!-- GPA Calculator -->
+            <section id="gpa" class="section">
+                <h2>GPA Calculator</h2>
+                <p>Add your courses, grade, and credit hours to calculate your GPA.</p>
+                <form id="gpaForm">
+                    <input type="text" id="gpaCourse" placeholder="Course name" required>
+                    <select id="gpaGrade" required>
+                        <option value="" disabled selected>Grade</option>
+                        <option value="4.0">A</option>
+                        <option value="3.7">A-</option>
+                        <option value="3.3">B+</option>
+                        <option value="3.0">B</option>
+                        <option value="2.7">B-</option>
+                        <option value="2.3">C+</option>
+                        <option value="2.0">C</option>
+                        <option value="1.7">C-</option>
+                        <option value="1.0">D</option>
+                        <option value="0.0">F</option>
+                    </select>
+                    <input type="number" id="gpaCredits" placeholder="Credits" min="1" max="6" required>
+                    <button type="submit">Add Course</button>
+                </form>
+                <ul id="gpaCourseList"></ul>
+                <div class="gpa-result">
+                    <span>Cumulative GPA:</span>
+                    <strong id="gpaResult">—</strong>
+                </div>
+            </section>
+
+            <!-- Flashcards -->
+            <section id="flashcards" class="section">
+                <h2>Flashcards</h2>
+                <p>Create cards and flip through them to study.</p>
+                <form id="flashcardForm">
+                    <input type="text" id="flashcardFront" placeholder="Question / Front" required>
+                    <input type="text" id="flashcardBack" placeholder="Answer / Back" required>
+                    <button type="submit">Add Card</button>
+                </form>
+                <div id="flashcardStudy" class="flashcard-study hidden">
+                    <div id="flashcard" class="flashcard">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front"><p id="fcFront"></p></div>
+                            <div class="flashcard-back"><p id="fcBack"></p></div>
+                        </div>
+                    </div>
+                    <p class="fc-hint">Click card to flip</p>
+                    <div class="fc-controls">
+                        <button id="fcPrev">← Prev</button>
+                        <span id="fcCounter">1 / 1</span>
+                        <button id="fcNext">Next →</button>
+                    </div>
+                    <button id="fcShuffle" class="fc-secondary">Shuffle</button>
+                </div>
+                <p id="fcEmpty" class="muted-note">No flashcards yet. Add some above!</p>
+            </section>
+
+            <!-- Exam Countdown -->
+            <section id="exams" class="section">
+                <h2>Exam Countdown</h2>
+                <p>Track upcoming exams and see how many days you have left.</p>
+                <form id="examForm">
+                    <input type="text" id="examName" placeholder="Exam name (e.g. Math Final)" required>
+                    <input type="date" id="examDate" required>
+                    <button type="submit">Add Exam</button>
+                </form>
+                <div id="examList" class="exam-grid"></div>
+            </section>
+
+            <!-- Focus Mode -->
             <section id="focus" class="section">
                 <h2>Focus Mode</h2>
                 <div class="focus-display">
                     <p id="focusTimer">25:00</p>
-                    <p id="motivationalQuote">“Stay focused, stay productive!”</p>
+                    <p id="motivationalQuote">"Stay focused, stay productive!"</p>
                 </div>
             </section>
 
-            <!-- Statistics Section -->
+            <!-- Statistics -->
             <section id="stats" class="section">
                 <h2>Productivity Statistics</h2>
                 <div id="charts">
-                    <!-- Placeholder for future chart JS -->
                     <p>Charts coming soon...</p>
                 </div>
             </section>
+
         </main>
     </div>
 
-    <!-- Link to JS -->
     <script src="script.js"></script>
 </body>
 </html>

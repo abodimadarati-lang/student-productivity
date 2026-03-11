@@ -66,6 +66,11 @@
           <div class="stat-number" id="upcomingExamPreview">—</div>
         </div>
       </div>
+
+      <!-- quote rotates daily based on the date -->
+      <div class="daily-quote-box">
+        <span id="daily-quote-text"></span>
+      </div>
     </section>
 
     <!-- assignments page -->
@@ -74,8 +79,8 @@
       <p class="page-subtitle">Track homework and due dates.</p>
 
       <form id="new-homework-form" class="inline-form">
-        <input type="text" id="homework-name"    placeholder="Assignment name" required />
-        <input type="date" id="homework-due"     required />
+        <input type="text" id="homework-name" placeholder="e.g. Chapter 5 Essay, Math Problem Set" required />
+        <input type="date" id="homework-due"  required />
         <button type="submit">Add</button>
       </form>
 
@@ -88,7 +93,7 @@
       <p class="page-subtitle">Plan your study tasks for today.</p>
 
       <form id="new-task-form" class="inline-form">
-        <input type="text" id="task-description" placeholder="Task description" required />
+        <input type="text" id="task-description" placeholder="e.g. Review lecture notes, Read Chapter 3" required />
         <input type="time" id="task-time"         required />
         <button type="submit">Add</button>
       </form>
@@ -136,7 +141,7 @@
       <p class="page-subtitle">Add courses to calculate your cumulative GPA.</p>
 
       <form id="gpa-entry-form" class="inline-form">
-        <input type="text"   id="course-name"    placeholder="Course name" required />
+        <input type="text"   id="course-name"          placeholder="e.g. Calculus II, English Lit" required />
         <select id="course-letter-grade" required>
           <option value="" disabled selected>Grade</option>
           <option value="4.0">A</option>
@@ -164,8 +169,8 @@
       <p class="page-subtitle">Add cards, click to flip, use arrows to navigate.</p>
 
       <form id="new-card-form" class="inline-form">
-        <input type="text" id="card-front-text" placeholder="Question / Front" required />
-        <input type="text" id="card-back-text"  placeholder="Answer / Back"    required />
+        <input type="text" id="card-front-text" placeholder="e.g. What is Newton's 2nd Law?" required />
+        <input type="text" id="card-back-text"  placeholder="e.g. Force = mass × acceleration" required />
         <button type="submit">Add Card</button>
       </form>
 
@@ -190,8 +195,8 @@
         </div>
 
         <div class="card-action-row">
-          <button id="shuffle-deck-btn"  class="outline">🔀 Shuffle</button>
-          <button id="delete-card-btn"   class="danger-btn">🗑 Delete</button>
+          <button id="shuffle-deck-btn" class="outline">🔀 Shuffle</button>
+          <button id="delete-card-btn"  class="danger-btn">🗑 Delete</button>
         </div>
       </div>
     </section>
@@ -202,7 +207,7 @@
       <p class="page-subtitle">See how many days until each exam.</p>
 
       <form id="new-exam-form" class="inline-form">
-        <input type="text" id="exam-name-input" placeholder="Exam name" required />
+        <input type="text" id="exam-name-input" placeholder="e.g. Biology Midterm, History Final" required />
         <input type="date" id="exam-date-input" required />
         <button type="submit">Add Exam</button>
       </form>

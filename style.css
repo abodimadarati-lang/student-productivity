@@ -259,18 +259,7 @@ body {
   line-height: 1;
 }
 
-/* daily quote on the dashboard */
-.daily-quote-box {
-  margin-top: 1.5rem;
-  padding: 1.1rem 1.5rem;
-  background: var(--surface);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--radius);
-  font-size: .95rem;
-  font-style: italic;
-  color: var(--muted);
-  box-shadow: var(--shadow);
-}
+
 
 
 /* forms */

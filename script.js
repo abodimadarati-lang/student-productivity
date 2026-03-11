@@ -1,354 +1,541 @@
-/* =============================================================
-   PRODDASH — script.js
-   Every feature wired up. Every ID matches index.html exactly.
-   All data saved to localStorage — survives page refresh.
-============================================================= */
+// script.js - all the javascript for scholarly
+// took me forever to get the localStorage stuff working lol
 
-// ── STORAGE ──────────────────────────────────────────────────
-function load(key, def) {
-  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : def; }
-  catch { return def; }
+
+// helper functions for saving/loading from localStorage
+// you have to use JSON.parse and JSON.stringify or it breaks
+
+function loadFromStorage(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw !== null ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
 }
-function save(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+
+function saveToStorage(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
 }
 
-// ── STATE ─────────────────────────────────────────────────────
-let assignments    = load("assignments",    []);
-let tasks          = load("tasks",          []);
-let gpaCourses     = load("gpaCourses",     []);
-let flashcards     = load("flashcards",     []);
-let exams          = load("exams",          []);
-let tasksCompleted = load("tasksCompleted", 0);
-let studyMinutes   = load("studyMinutes",   0);
-let fcIndex        = 0;
 
-// ── NAVIGATION ────────────────────────────────────────────────
-document.querySelectorAll(".nav-btn").forEach(btn => {
+// all the data - loads from localStorage so it saves between refreshes
+
+let homeworkItems    = loadFromStorage("assignments",    []);
+let dailyTasks       = loadFromStorage("tasks",          []);
+let gpaCourseList    = loadFromStorage("gpaCourses",     []);
+let flashcardDeck    = loadFromStorage("flashcards",     []);
+let scheduledExams   = loadFromStorage("exams",          []);
+let doneTaskCount    = loadFromStorage("tasksCompleted", 0);
+let studyMinutesTotal = loadFromStorage("studyMinutes",  0);
+
+// tracks which card youre on
+let currentCardIndex = 0;
+
+
+// navigation - switches between pages when you click the sidebar buttons
+
+document.querySelectorAll(".page-link").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".page-link").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(s => s.classList.remove("active"));
+
     btn.classList.add("active");
-    document.getElementById(btn.dataset.section).classList.add("active");
+    document.getElementById(btn.dataset.page).classList.add("active");
   });
 });
 
-// ── DARK MODE (persisted) ─────────────────────────────────────
-const darkToggle = document.getElementById("darkToggle");
-if (load("darkMode", false)) {
+
+// dark mode toggle - saves so it remembers your preference
+
+const darkModeSwitch = document.getElementById("darkModeSwitch");
+
+if (loadFromStorage("darkMode", false)) {
   document.body.classList.add("dark");
-  darkToggle.checked = true;
+  darkModeSwitch.checked = true;
 }
-darkToggle.addEventListener("change", () => {
-  document.body.classList.toggle("dark", darkToggle.checked);
-  save("darkMode", darkToggle.checked);
+
+darkModeSwitch.addEventListener("change", () => {
+  document.body.classList.toggle("dark", darkModeSwitch.checked);
+  saveToStorage("darkMode", darkModeSwitch.checked);
 });
 
-// ── DASHBOARD ─────────────────────────────────────────────────
+
+// updates the numbers on the dashboard
+// have to call this whenever something changes
+
 function refreshDashboard() {
-  document.getElementById("assignmentsRemaining").textContent = assignments.length;
-  document.getElementById("tasksCompleted").textContent       = tasksCompleted;
-  document.getElementById("studyTime").textContent            = studyMinutes + " min";
+  document.getElementById("pendingAssignmentCount").textContent = homeworkItems.length;
+  document.getElementById("completedTaskCount").textContent     = doneTaskCount;
+  document.getElementById("totalStudyTime").textContent         = studyMinutesTotal + " min";
 
-  // next upcoming exam
-  const today = dayStart(new Date());
-  const next  = exams
-    .map(e => ({ ...e, d: diffDays(today, new Date(e.date)) }))
-    .filter(e => e.d >= 0)
-    .sort((a, b) => a.d - b.d)[0];
-  document.getElementById("nextExamDash").textContent = next ? next.d + "d" : "—";
+  // get the closest upcoming exam for the dashboard
+  const todayStart = getDateOnly(new Date());
+  const nextExam   = scheduledExams
+    .map(e => ({ ...e, daysAway: daysBetween(todayStart, new Date(e.date)) }))
+    .filter(e => e.daysAway >= 0)
+    .sort((a, b) => a.daysAway - b.daysAway)[0];
+
+  document.getElementById("upcomingExamPreview").textContent = nextExam
+    ? nextExam.daysAway + "d"
+    : "—";
 }
 
-// ── ASSIGNMENTS ───────────────────────────────────────────────
-document.getElementById("assignmentForm").addEventListener("submit", function(e) {
+
+// ASSIGNMENTS
+
+document.getElementById("new-homework-form").addEventListener("submit", function(e) {
   e.preventDefault();
-  const inp  = document.getElementById("assignmentInput");
-  const datE = document.getElementById("assignmentDate");
-  if (!inp.value.trim()) return;
-  assignments.push({ text: inp.value.trim(), date: datE.value });
-  save("assignments", assignments);
-  inp.value = ""; datE.value = "";
-  renderAssignments();
+
+  const nameField = document.getElementById("homework-name");
+  const dueField  = document.getElementById("homework-due");
+  if (!nameField.value.trim()) return;
+
+  homeworkItems.push({ text: nameField.value.trim(), date: dueField.value });
+  saveToStorage("assignments", homeworkItems);
+
+  nameField.value = "";
+  dueField.value  = "";
+
+  renderHomeworkList();
   refreshDashboard();
 });
 
-function renderAssignments() {
-  const ul = document.getElementById("assignmentList");
-  ul.innerHTML = "";
-  if (!assignments.length) {
-    ul.innerHTML = '<li class="empty-item">No assignments yet.</li>';
+function renderHomeworkList() {
+  const list = document.getElementById("homework-list");
+  list.innerHTML = "";
+
+  if (!homeworkItems.length) {
+    list.innerHTML = '<li class="empty-item">No assignments yet.</li>';
     return;
   }
-  assignments.forEach((a, i) => {
-    const li  = document.createElement("li");
-    const sp  = document.createElement("span");
-    sp.innerHTML = a.text + (a.date ? ' <em>· Due ' + fmtDate(a.date) + '</em>' : '');
-    const btn = document.createElement("button");
-    btn.className = "done-btn"; btn.textContent = "✓ Done";
-    btn.onclick = () => {
-      assignments.splice(i, 1); save("assignments", assignments);
-      tasksCompleted++; save("tasksCompleted", tasksCompleted);
-      renderAssignments(); refreshDashboard();
+
+  homeworkItems.forEach((item, idx) => {
+    const li   = document.createElement("li");
+    const text = document.createElement("span");
+
+    text.innerHTML = item.text + (item.date ? ' <em>· Due ' + formatDate(item.date) + '</em>' : '');
+
+    const doneBtn = document.createElement("button");
+    doneBtn.className = "done-btn";
+    doneBtn.textContent = "✓ Done";
+    doneBtn.onclick = () => {
+      homeworkItems.splice(idx, 1);
+      saveToStorage("assignments", homeworkItems);
+
+      doneTaskCount++;
+      saveToStorage("tasksCompleted", doneTaskCount);
+
+      renderHomeworkList();
+      refreshDashboard();
     };
-    li.appendChild(sp); li.appendChild(btn); ul.appendChild(li);
+
+    li.appendChild(text);
+    li.appendChild(doneBtn);
+    list.appendChild(li);
   });
 }
 
-// ── PLANNER ───────────────────────────────────────────────────
-document.getElementById("plannerForm").addEventListener("submit", function(e) {
+
+// DAILY PLANNER
+
+document.getElementById("new-task-form").addEventListener("submit", function(e) {
   e.preventDefault();
-  const inp  = document.getElementById("plannerTask");
-  const tim  = document.getElementById("plannerTime");
-  if (!inp.value.trim()) return;
-  tasks.push({ text: inp.value.trim(), time: tim.value });
-  save("tasks", tasks);
-  inp.value = ""; tim.value = "";
-  renderPlanner();
+
+  const descField = document.getElementById("task-description");
+  const timeField = document.getElementById("task-time");
+  if (!descField.value.trim()) return;
+
+  dailyTasks.push({ text: descField.value.trim(), time: timeField.value });
+  saveToStorage("tasks", dailyTasks);
+
+  descField.value = "";
+  timeField.value = "";
+
+  renderTaskList();
 });
 
-function renderPlanner() {
-  const ul = document.getElementById("plannerList");
-  ul.innerHTML = "";
-  if (!tasks.length) {
-    ul.innerHTML = '<li class="empty-item">No tasks yet.</li>';
+function renderTaskList() {
+  const list = document.getElementById("task-list");
+  list.innerHTML = "";
+
+  if (!dailyTasks.length) {
+    list.innerHTML = '<li class="empty-item">No tasks yet.</li>';
     return;
   }
-  tasks.forEach((t, i) => {
-    const li  = document.createElement("li");
-    const sp  = document.createElement("span");
-    sp.innerHTML = t.text + (t.time ? ' <em>· ' + t.time + '</em>' : '');
-    const btn = document.createElement("button");
-    btn.className = "done-btn"; btn.textContent = "✓ Done";
-    btn.onclick = () => {
-      tasks.splice(i, 1); save("tasks", tasks);
-      tasksCompleted++; save("tasksCompleted", tasksCompleted);
-      renderPlanner(); refreshDashboard();
+
+  dailyTasks.forEach((task, idx) => {
+    const li   = document.createElement("li");
+    const text = document.createElement("span");
+
+    text.innerHTML = task.text + (task.time ? ' <em>· ' + task.time + '</em>' : '');
+
+    const doneBtn = document.createElement("button");
+    doneBtn.className   = "done-btn";
+    doneBtn.textContent = "✓ Done";
+    doneBtn.onclick = () => {
+      dailyTasks.splice(idx, 1);
+      saveToStorage("tasks", dailyTasks);
+
+      doneTaskCount++;
+      saveToStorage("tasksCompleted", doneTaskCount);
+
+      renderTaskList();
+      refreshDashboard();
     };
-    li.appendChild(sp); li.appendChild(btn); ul.appendChild(li);
+
+    li.appendChild(text);
+    li.appendChild(doneBtn);
+    list.appendChild(li);
   });
 }
 
-// ── GRADE CALCULATOR ─────────────────────────────────────────
-document.getElementById("gradeForm").addEventListener("submit", function(e) {
+
+// GRADE CALCULATOR
+// ignores empty inputs, only averages the ones you filled in
+
+document.getElementById("grades-form").addEventListener("submit", function(e) {
   e.preventDefault();
-  const vals = [...document.querySelectorAll(".gradeInput")]
-    .map(i => parseFloat(i.value)).filter(v => !isNaN(v));
-  if (!vals.length) return;
-  const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
-  document.getElementById("avgGrade").textContent = avg.toFixed(2);
+
+  const filled = [...document.querySelectorAll(".grade-entry")]
+    .map(input => parseFloat(input.value))
+    .filter(val => !isNaN(val));
+
+  if (!filled.length) return;
+
+  const avg = filled.reduce((sum, v) => sum + v, 0) / filled.length;
+  document.getElementById("calculated-avg").textContent = avg.toFixed(2);
 });
 
-// ── GPA CALCULATOR ────────────────────────────────────────────
-document.getElementById("gpaForm").addEventListener("submit", function(e) {
+
+// GPA CALCULATOR
+// formula is (grade points * credits) added up, divided by total credits
+
+document.getElementById("gpa-entry-form").addEventListener("submit", function(e) {
   e.preventDefault();
-  const course   = document.getElementById("gpaCourse").value.trim();
-  const grade    = parseFloat(document.getElementById("gpaGrade").value);
-  const credits  = parseFloat(document.getElementById("gpaCredits").value);
-  if (!course || isNaN(grade) || isNaN(credits)) return;
-  gpaCourses.push({ course, grade, credits });
-  save("gpaCourses", gpaCourses);
-  document.getElementById("gpaCourse").value  = "";
-  document.getElementById("gpaGrade").value   = "";
-  document.getElementById("gpaCredits").value = "";
-  renderGPA();
+
+  const courseName = document.getElementById("course-name").value.trim();
+  const gradePoints = parseFloat(document.getElementById("course-letter-grade").value);
+  const creditHours = parseFloat(document.getElementById("course-credits").value);
+
+  if (!courseName || isNaN(gradePoints) || isNaN(creditHours)) return;
+
+  gpaCourseList.push({ course: courseName, grade: gradePoints, credits: creditHours });
+  saveToStorage("gpaCourses", gpaCourseList);
+
+  // clear the form
+  document.getElementById("course-name").value           = "";
+  document.getElementById("course-letter-grade").value   = "";
+  document.getElementById("course-credits").value        = "";
+
+  renderGPACourses();
 });
 
-function renderGPA() {
-  const ul = document.getElementById("gpaCourseList");
-  ul.innerHTML = "";
-  let pts = 0, crs = 0;
-  gpaCourses.forEach((c, i) => {
-    pts += c.grade * c.credits;
-    crs += c.credits;
-    const li  = document.createElement("li");
-    const sp  = document.createElement("span");
-    sp.innerHTML = c.course + ' — <strong>' + gradeLabel(c.grade) + '</strong> (' + c.credits + ' cr)';
-    const btn = document.createElement("button");
-    btn.className = "done-btn"; btn.textContent = "Remove";
-    btn.onclick = () => {
-      gpaCourses.splice(i, 1); save("gpaCourses", gpaCourses); renderGPA();
+function renderGPACourses() {
+  const list = document.getElementById("course-list");
+  list.innerHTML = "";
+
+  let totalPoints  = 0;
+  let totalCredits = 0;
+
+  gpaCourseList.forEach((entry, idx) => {
+    totalPoints  += entry.grade * entry.credits;
+    totalCredits += entry.credits;
+
+    const li   = document.createElement("li");
+    const text = document.createElement("span");
+
+    text.innerHTML = entry.course + ' — <strong>' + gradePointsToLetter(entry.grade) + '</strong> (' + entry.credits + ' cr)';
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className   = "done-btn";
+    removeBtn.textContent = "Remove";
+    removeBtn.onclick = () => {
+      gpaCourseList.splice(idx, 1);
+      saveToStorage("gpaCourses", gpaCourseList);
+      renderGPACourses();
     };
-    li.appendChild(sp); li.appendChild(btn); ul.appendChild(li);
+
+    li.appendChild(text);
+    li.appendChild(removeBtn);
+    list.appendChild(li);
   });
-  document.getElementById("gpaResult").textContent = crs > 0 ? (pts / crs).toFixed(2) : "—";
+
+  document.getElementById("gpa-output").textContent = totalCredits > 0
+    ? (totalPoints / totalCredits).toFixed(2)
+    : "—";
 }
 
-function gradeLabel(v) {
-  return ({4:"A",3.7:"A-",3.3:"B+",3:"B",2.7:"B-",2.3:"C+",2:"C",1.7:"C-",1:"D",0:"F"})[v] ?? v;
+// maps grade point value back to letter (e.g. 3.7 → "A-")
+function gradePointsToLetter(points) {
+  const map = { 4: "A", 3.7: "A-", 3.3: "B+", 3: "B", 2.7: "B-", 2.3: "C+", 2: "C", 1.7: "C-", 1: "D", 0: "F" };
+  return map[points] ?? points;
 }
 
-// ── FLASHCARDS ────────────────────────────────────────────────
-document.getElementById("fcForm").addEventListener("submit", function(e) {
+
+// FLASHCARDS
+
+document.getElementById("new-card-form").addEventListener("submit", function(e) {
   e.preventDefault();
-  const front = document.getElementById("fcFrontInput").value.trim();
-  const back  = document.getElementById("fcBackInput").value.trim();
-  if (!front || !back) return;
-  flashcards.push({ front, back });
-  save("flashcards", flashcards);
-  document.getElementById("fcFrontInput").value = "";
-  document.getElementById("fcBackInput").value  = "";
-  fcIndex = flashcards.length - 1;
-  renderFC();
+
+  const frontField = document.getElementById("card-front-text");
+  const backField  = document.getElementById("card-back-text");
+
+  if (!frontField.value.trim() || !backField.value.trim()) return;
+
+  flashcardDeck.push({ front: frontField.value.trim(), back: backField.value.trim() });
+  saveToStorage("flashcards", flashcardDeck);
+
+  frontField.value = "";
+  backField.value  = "";
+
+  // jump to the newly added card
+  currentCardIndex = flashcardDeck.length - 1;
+  renderFlashcards();
 });
 
-document.getElementById("fcCard").addEventListener("click", () => {
-  document.getElementById("fcCard").classList.toggle("flipped");
+// flip it when clicked
+document.getElementById("active-card").addEventListener("click", () => {
+  document.getElementById("active-card").classList.toggle("flipped");
 });
 
-document.getElementById("fcNext").addEventListener("click", () => {
-  if (!flashcards.length) return;
-  fcIndex = (fcIndex + 1) % flashcards.length;
-  document.getElementById("fcCard").classList.remove("flipped");
-  renderFC();
+document.getElementById("next-card-btn").addEventListener("click", () => {
+  if (!flashcardDeck.length) return;
+  currentCardIndex = (currentCardIndex + 1) % flashcardDeck.length;
+  document.getElementById("active-card").classList.remove("flipped");
+  renderFlashcards();
 });
 
-document.getElementById("fcPrev").addEventListener("click", () => {
-  if (!flashcards.length) return;
-  fcIndex = (fcIndex - 1 + flashcards.length) % flashcards.length;
-  document.getElementById("fcCard").classList.remove("flipped");
-  renderFC();
+document.getElementById("prev-card-btn").addEventListener("click", () => {
+  if (!flashcardDeck.length) return;
+  currentCardIndex = (currentCardIndex - 1 + flashcardDeck.length) % flashcardDeck.length;
+  document.getElementById("active-card").classList.remove("flipped");
+  renderFlashcards();
 });
 
-document.getElementById("fcShuffle").addEventListener("click", () => {
-  for (let i = flashcards.length - 1; i > 0; i--) {
+// shuffle - found this algorithm online, it randomizes the order
+document.getElementById("shuffle-deck-btn").addEventListener("click", () => {
+  for (let i = flashcardDeck.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+    [flashcardDeck[i], flashcardDeck[j]] = [flashcardDeck[j], flashcardDeck[i]];
   }
-  save("flashcards", flashcards);
-  fcIndex = 0;
-  document.getElementById("fcCard").classList.remove("flipped");
-  renderFC();
+  saveToStorage("flashcards", flashcardDeck);
+  currentCardIndex = 0;
+  document.getElementById("active-card").classList.remove("flipped");
+  renderFlashcards();
 });
 
-document.getElementById("fcDelete").addEventListener("click", () => {
-  if (!flashcards.length) return;
-  flashcards.splice(fcIndex, 1);
-  save("flashcards", flashcards);
-  fcIndex = Math.max(0, fcIndex - 1);
-  document.getElementById("fcCard").classList.remove("flipped");
-  renderFC();
+document.getElementById("delete-card-btn").addEventListener("click", () => {
+  if (!flashcardDeck.length) return;
+  flashcardDeck.splice(currentCardIndex, 1);
+  saveToStorage("flashcards", flashcardDeck);
+  currentCardIndex = Math.max(0, currentCardIndex - 1);
+  document.getElementById("active-card").classList.remove("flipped");
+  renderFlashcards();
 });
 
-function renderFC() {
-  const study = document.getElementById("fcStudy");
-  const empty = document.getElementById("fcEmpty");
-  if (!flashcards.length) {
-    study.style.display = "none";
-    empty.style.display = "block";
+function renderFlashcards() {
+  const viewer   = document.getElementById("card-viewer");
+  const emptyMsg = document.getElementById("empty-deck-msg");
+
+  if (!flashcardDeck.length) {
+    viewer.style.display   = "none";
+    emptyMsg.style.display = "block";
     return;
   }
-  study.style.display = "flex";
-  empty.style.display = "none";
-  document.getElementById("fcFrontText").textContent = flashcards[fcIndex].front;
-  document.getElementById("fcBackText").textContent  = flashcards[fcIndex].back;
-  document.getElementById("fcCount").textContent     = (fcIndex + 1) + " / " + flashcards.length;
+
+  viewer.style.display   = "flex";
+  emptyMsg.style.display = "none";
+
+  const card = flashcardDeck[currentCardIndex];
+  document.getElementById("card-front-display").textContent   = card.front;
+  document.getElementById("card-back-display").textContent    = card.back;
+  document.getElementById("card-position-label").textContent  = (currentCardIndex + 1) + " / " + flashcardDeck.length;
 }
 
-// ── EXAM COUNTDOWN ────────────────────────────────────────────
-document.getElementById("examForm").addEventListener("submit", function(e) {
+
+// EXAM COUNTDOWN
+
+document.getElementById("new-exam-form").addEventListener("submit", function(e) {
   e.preventDefault();
-  const name = document.getElementById("examName").value.trim();
-  const date = document.getElementById("examDate").value;
-  if (!name || !date) return;
-  exams.push({ name, date });
-  save("exams", exams);
-  document.getElementById("examName").value = "";
-  document.getElementById("examDate").value = "";
-  renderExams();
+
+  const nameField = document.getElementById("exam-name-input");
+  const dateField = document.getElementById("exam-date-input");
+
+  if (!nameField.value.trim() || !dateField.value) return;
+
+  scheduledExams.push({ name: nameField.value.trim(), date: dateField.value });
+  saveToStorage("exams", scheduledExams);
+
+  nameField.value = "";
+  dateField.value = "";
+
+  renderExamGrid();
   refreshDashboard();
 });
 
-function renderExams() {
-  const grid  = document.getElementById("examGrid");
-  const empty = document.getElementById("examEmpty");
+function renderExamGrid() {
+  const grid     = document.getElementById("exam-cards-grid");
+  const emptyMsg = document.getElementById("no-exams-msg");
+
   grid.innerHTML = "";
-  if (!exams.length) { empty.style.display = "block"; return; }
-  empty.style.display = "none";
 
-  const today  = dayStart(new Date());
-  const sorted = [...exams].sort((a, b) => new Date(a.date) - new Date(b.date));
+  if (!scheduledExams.length) {
+    emptyMsg.style.display = "block";
+    return;
+  }
+  emptyMsg.style.display = "none";
 
-  sorted.forEach((exam, si) => {
-    const diff  = diffDays(today, new Date(exam.date));
-    const label = diff < 0 ? "Passed" : diff === 0 ? "Today!" : diff + " day" + (diff !== 1 ? "s" : "");
+  const today  = getDateOnly(new Date());
+  // sort by date so the closest exam shows first
+  const sorted = [...scheduledExams].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  sorted.forEach((exam, sortedIdx) => {
+    const daysLeft = daysBetween(today, new Date(exam.date));
+    const countdownText = daysLeft < 0  ? "Passed"
+                        : daysLeft === 0 ? "Today!"
+                        : daysLeft + " day" + (daysLeft !== 1 ? "s" : "");
+
+    // red if its in 3 days, yellow if its within a week
+    const urgencyClass = (daysLeft >= 0 && daysLeft <= 3) ? " urgent"
+                       : (daysLeft > 3  && daysLeft <= 7) ? " soon"
+                       : "";
 
     const card = document.createElement("div");
-    card.className = "exam-card" +
-      (diff >= 0 && diff <= 3 ? " urgent" : (diff > 3 && diff <= 7 ? " soon" : ""));
+    card.className = "exam-card" + urgencyClass;
 
-    const daysEl = document.createElement("div"); daysEl.className = "ex-days"; daysEl.textContent = label;
-    const nameEl = document.createElement("div"); nameEl.className = "ex-name"; nameEl.textContent = exam.name;
-    const dateEl = document.createElement("div"); dateEl.className = "ex-date"; dateEl.textContent = fmtDate(exam.date);
-    const btn    = document.createElement("button"); btn.className = "done-btn"; btn.textContent = "Remove";
-    btn.onclick  = () => {
-      const oi = exams.findIndex(x => x.name === sorted[si].name && x.date === sorted[si].date);
-      if (oi > -1) { exams.splice(oi, 1); save("exams", exams); }
-      renderExams(); refreshDashboard();
+    const countdownEl = document.createElement("div");
+    countdownEl.className   = "exam-days-remaining";
+    countdownEl.textContent = countdownText;
+
+    const nameEl = document.createElement("div");
+    nameEl.className   = "exam-title";
+    nameEl.textContent = exam.name;
+
+    const dateEl = document.createElement("div");
+    dateEl.className   = "exam-date-label";
+    dateEl.textContent = formatDate(exam.date);
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className   = "done-btn";
+    removeBtn.textContent = "Remove";
+    removeBtn.onclick = () => {
+      // have to find it in the original array not the sorted one
+      const originalIdx = scheduledExams.findIndex(
+        x => x.name === sorted[sortedIdx].name && x.date === sorted[sortedIdx].date
+      );
+      if (originalIdx > -1) {
+        scheduledExams.splice(originalIdx, 1);
+        saveToStorage("exams", scheduledExams);
+      }
+      renderExamGrid();
+      refreshDashboard();
     };
 
-    card.appendChild(daysEl); card.appendChild(nameEl);
-    card.appendChild(dateEl); card.appendChild(btn);
+    card.appendChild(countdownEl);
+    card.appendChild(nameEl);
+    card.appendChild(dateEl);
+    card.appendChild(removeBtn);
     grid.appendChild(card);
   });
 }
 
-// ── POMODORO ──────────────────────────────────────────────────
-let timeLeft = 1500, timerOn = false, timerIv = null, onBreak = false;
 
-function updateTimerDisplay() {
-  const m = String(Math.floor(timeLeft / 60)).padStart(2, "0");
-  const s = String(timeLeft % 60).padStart(2, "0");
-  document.getElementById("timerMin").textContent = m;
-  document.getElementById("timerSec").textContent = s;
+// POMODORO TIMER
+// 25 min work then 5 min break, adds to study time on dashboard
+// TODO: maybe make the alert nicer someday
+
+let secondsRemaining = 1500; // 25 min
+let timerRunning     = false;
+let timerInterval    = null;
+let isBreakPhase     = false;
+
+function updateClockDisplay() {
+  const mins = String(Math.floor(secondsRemaining / 60)).padStart(2, "0");
+  const secs = String(secondsRemaining % 60).padStart(2, "0");
+  document.getElementById("clock-minutes").textContent = mins;
+  document.getElementById("clock-seconds").textContent = secs;
 }
 
-document.getElementById("btnStart").addEventListener("click", () => {
-  if (timerOn) return;
-  timerOn = true;
-  timerIv = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-    if (timeLeft <= 0) {
-      clearInterval(timerIv); timerOn = false;
-      if (!onBreak) {
-        studyMinutes += 25; save("studyMinutes", studyMinutes); refreshDashboard();
+document.getElementById("timer-start-btn").addEventListener("click", () => {
+  if (timerRunning) return;
+
+  timerRunning  = true;
+  timerInterval = setInterval(() => {
+    secondsRemaining--;
+    updateClockDisplay();
+
+    if (secondsRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+
+      if (!isBreakPhase) {
+        // session done, add 25 min to study time and switch to break
+        studyMinutesTotal += 25;
+        saveToStorage("studyMinutes", studyMinutesTotal);
+        refreshDashboard();
+
         alert("🎉 Session done! Take a 5-minute break.");
-        timeLeft = 300; onBreak = true;
-        document.getElementById("timerMode").textContent = "Break Time";
+        secondsRemaining = 300; // 5 min break
+        isBreakPhase     = true;
+        document.getElementById("session-type-label").textContent = "Break Time";
       } else {
         alert("⏰ Break over! Back to work.");
-        timeLeft = 1500; onBreak = false;
-        document.getElementById("timerMode").textContent = "Focus Session";
+        secondsRemaining = 1500;
+        isBreakPhase     = false;
+        document.getElementById("session-type-label").textContent = "Focus Session";
       }
-      updateTimerDisplay();
+
+      updateClockDisplay();
     }
   }, 1000);
 });
 
-document.getElementById("btnPause").addEventListener("click", () => {
-  clearInterval(timerIv); timerOn = false;
+document.getElementById("timer-pause-btn").addEventListener("click", () => {
+  clearInterval(timerInterval);
+  timerRunning = false;
 });
 
-document.getElementById("btnReset").addEventListener("click", () => {
-  clearInterval(timerIv); timerOn = false; onBreak = false; timeLeft = 1500;
-  document.getElementById("timerMode").textContent = "Focus Session";
-  updateTimerDisplay();
+document.getElementById("timer-reset-btn").addEventListener("click", () => {
+  clearInterval(timerInterval);
+  timerRunning     = false;
+  isBreakPhase     = false;
+  secondsRemaining = 1500;
+  document.getElementById("session-type-label").textContent = "Focus Session";
+  updateClockDisplay();
 });
 
-// ── HELPERS ───────────────────────────────────────────────────
-function dayStart(d) { const c = new Date(d); c.setHours(0,0,0,0); return c; }
-function diffDays(from, to) { return Math.round((dayStart(to) - from) / 86400000); }
-function fmtDate(str) {
-  if (!str) return "";
-  const [y, m, d] = str.split("-");
-  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+
+// date helper functions
+
+// strips the time part off a date so comparisons dont get messed up
+function getDateOnly(d) {
+  const copy = new Date(d);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
 }
 
-// ── BOOT ──────────────────────────────────────────────────────
-renderAssignments();
-renderPlanner();
-renderGPA();
-renderFC();
-renderExams();
+// returns how many days between two dates (negative means its already passed)
+function daysBetween(from, to) {
+  return Math.round((getDateOnly(to) - from) / 86400000);
+}
+
+// turns "2024-09-15" into something readable like "Sep 15, 2024"
+function formatDate(str) {
+  if (!str) return "";
+  const [y, m, d] = str.split("-");
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+    month: "short", day: "numeric", year: "numeric"
+  });
+}
+
+
+// run everything on load
+
+renderHomeworkList();
+renderTaskList();
+renderGPACourses();
+renderFlashcards();
+renderExamGrid();
 refreshDashboard();
-updateTimerDisplay();
+updateClockDisplay();

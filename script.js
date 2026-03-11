@@ -298,9 +298,8 @@ let timeLeft = 1500, timerOn = false, timerIv = null, onBreak = false;
 function updateTimerDisplay() {
   const m = String(Math.floor(timeLeft / 60)).padStart(2, "0");
   const s = String(timeLeft % 60).padStart(2, "0");
-  document.getElementById("timerMin").textContent    = m;
-  document.getElementById("timerSec").textContent    = s;
-  document.getElementById("focusDisplay").textContent = m + ":" + s;
+  document.getElementById("timerMin").textContent = m;
+  document.getElementById("timerSec").textContent = s;
 }
 
 document.getElementById("btnStart").addEventListener("click", () => {

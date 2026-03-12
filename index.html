@@ -28,13 +28,44 @@
       </ul>
     </nav>
 
-    <!-- dark mode toggle at the bottom -->
+    <!-- bottom of sidebar: dark mode + theme customizer -->
     <div class="nav-footer">
+
+      <!-- dark mode toggle -->
       <label class="dark-mode-toggle">
         <input type="checkbox" id="darkModeSwitch" />
         <span class="toggle-track"><span class="toggle-knob"></span></span>
         Dark Mode
       </label>
+
+      <!-- theme color customizer - slide open panel -->
+      <div class="theme-section">
+        <button class="theme-toggle-btn" id="themeToggleBtn">🎨 Customize Colors</button>
+        <div class="theme-panel" id="themePanel">
+          <div class="theme-row">
+            <label>Accent</label>
+            <input type="color" id="colorAccent" title="Accent color" />
+          </div>
+          <div class="theme-row">
+            <label>Sidebar</label>
+            <input type="color" id="colorSidebar" title="Sidebar color" />
+          </div>
+          <div class="theme-row">
+            <label>Background</label>
+            <input type="color" id="colorBg" title="Background color" />
+          </div>
+          <div class="theme-row">
+            <label>Text</label>
+            <input type="color" id="colorText" title="Text color" />
+          </div>
+          <div class="theme-row">
+            <label>Danger</label>
+            <input type="color" id="colorDanger" title="Danger color" />
+          </div>
+          <button class="theme-reset-btn" id="themeResetBtn">↺ Reset to Default</button>
+        </div>
+      </div>
+
     </div>
   </aside>
 
@@ -68,9 +99,12 @@
           <div class="stat-label">Next Exam</div>
           <div class="stat-number" id="upcomingExamPreview">—</div>
         </div>
+        <!-- streak tile - updates by js -->
+        <div class="stat-tile">
+          <div class="stat-label">Study Streak</div>
+          <div class="stat-number" id="streakCount">0 🔥</div>
+        </div>
       </div>
-
-
     </section>
 
     <!-- assignments page -->

@@ -731,3 +731,8 @@ body.dark .exam-card.urgent { background: #1f0a0a; }
   background: #333;
   transform: none;
 }
+
+/* fix - when sidebar is collapsed, make the grid single column */
+.app-wrapper.sidebar-collapsed {
+  grid-template-columns: 1fr;
+}

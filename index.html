@@ -9,6 +9,17 @@
 
 </head>
 <body>
+<!-- welcome screen - only shows on first visit -->
+<div id="welcome-overlay" class="welcome-overlay" style="display:none;">
+  <div class="welcome-box">
+    <div class="welcome-logo">Scholarly</div>
+    <h1 class="welcome-heading">Welcome!</h1>
+    <p class="welcome-sub">What should we call you?</p>
+    <input type="text" id="welcome-name-input" class="welcome-input" placeholder="Enter your name" maxlength="30" />
+    <button id="welcome-submit-btn" class="welcome-btn">Get Started →</button>
+  </div>
+</div>
+
 <div class="app-wrapper">
 
   <!-- sidebar nav -->
@@ -22,7 +33,6 @@
         <li><button class="page-link" data-page="homework">Assignments</button></li>
         <li><button class="page-link" data-page="daily-plan">Planner</button></li>
         <li><button class="page-link" data-page="focus-timer">Pomodoro Timer</button></li>
-        <li><button class="page-link" data-page="grade-calc">Grade Calc</button></li>
         <li><button class="page-link" data-page="gpa-calc">GPA Calc</button></li>
         <li><button class="page-link" data-page="study-cards">Flashcards</button></li>
         <li><button class="page-link" data-page="exam-tracker">Exam Countdown</button></li>
@@ -47,7 +57,7 @@
 
     <!-- dashboard -->
     <section id="dashboard" class="page active">
-      <h2>Dashboard</h2>
+      <h2 id="dashboard-greeting">Dashboard</h2>
       <p class="page-subtitle">Your productivity at a glance.</p>
 
       <div class="stats-row">
@@ -113,18 +123,6 @@
       </div>
     </section>
 
-    <!-- grade calculator -->
-    <section id="grade-calc" class="page">
-      <h2>Grade Calculator</h2>
-      <p class="page-subtitle">Enter up to three grades to get your average.</p>
-      <form id="grades-form" class="inline-form">
-        <input type="number" class="grade-entry" placeholder="Grade 1" min="0" max="100" required />
-        <input type="number" class="grade-entry" placeholder="Grade 2" min="0" max="100" />
-        <input type="number" class="grade-entry" placeholder="Grade 3" min="0" max="100" />
-        <button type="submit">Calculate</button>
-      </form>
-      <div class="result-display">Average: <strong id="calculated-avg">—</strong>%</div>
-    </section>
 
     <!-- gpa calculator -->
     <section id="gpa-calc" class="page">

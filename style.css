@@ -665,3 +665,110 @@ body.dark .exam-card.urgent { background: #1f0a0a; border-color: #7f1d1d; }
   .clock-face   { font-size: 4rem; letter-spacing: -3px; }
   .flip-card    { height: 175px; }
 }
+
+
+/* =============================================
+   WELCOME OVERLAY
+   ============================================= */
+
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadein .25s ease;
+}
+
+.welcome-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem 2.75rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0,0,0,.18);
+}
+
+.welcome-logo {
+  font-family: 'Inter', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--accent);
+  margin-bottom: 1.25rem;
+}
+
+.welcome-heading {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  color: var(--text);
+  margin-bottom: .4rem;
+}
+
+.welcome-sub {
+  color: var(--muted);
+  font-size: .9rem;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-input {
+  width: 100%;
+  padding: .65rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: .85rem;
+  transition: border-color var(--t), box-shadow var(--t);
+  /* override the flex:1 from the global input rule */
+  flex: none;
+  min-width: unset;
+}
+
+.welcome-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+.welcome-btn {
+  width: 100%;
+  padding: .65rem;
+  font-size: .9rem;
+  font-weight: 700;
+  border-radius: 9px;
+  letter-spacing: .01em;
+}
+
+
+/* =============================================
+   CONFETTI
+   ============================================= */
+
+.confetti-piece {
+  position: fixed;
+  top: -10px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9998;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg);      opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}

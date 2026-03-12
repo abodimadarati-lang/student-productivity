@@ -678,3 +678,56 @@ body.dark .exam-card.urgent { background: #1f0a0a; }
   .clock-face   { font-size: 3rem; }
   .flip-card    { height: 170px; }
 }
+
+
+/* collapsible sidebar */
+
+/* clicking the logo collapses the sidebar completely */
+.side-nav.collapsed {
+  display: none;
+}
+
+/* when sidebar collapses, main content takes full width */
+.side-nav.collapsed ~ .page-content {
+  grid-column: 1;
+}
+
+/* brand name is now a clickable button */
+.brand-name {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-align: left;
+  width: 100%;
+}
+
+.brand-name:hover {
+  opacity: 0.85;
+  transform: none;
+  background: none;
+  box-shadow: none;
+}
+
+/* hamburger button - shown when sidebar is hidden */
+.hamburger {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 999;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: .5rem .9rem;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: none;
+}
+
+.hamburger:hover {
+  background: #333;
+  transform: none;
+}

@@ -553,8 +553,11 @@ const sideNav       = document.getElementById("sideNav");
 const sidebarToggle = document.getElementById("sidebarToggle");
 const hamburger     = document.getElementById("hamburger");
 
+const appWrapper = document.querySelector(".app-wrapper");
+
 function toggleSidebar() {
   const isHidden = sideNav.classList.toggle("collapsed");
+  appWrapper.classList.toggle("sidebar-collapsed", isHidden);
   hamburger.style.display = isHidden ? "block" : "none";
   saveToStorage("sidebarCollapsed", isHidden);
 }
@@ -564,6 +567,7 @@ hamburger.addEventListener("click", toggleSidebar);
 
 // restore sidebar state from last session
 if (loadFromStorage("sidebarCollapsed", false)) {
+  appWrapper.classList.add("sidebar-collapsed");
   sideNav.classList.add("collapsed");
   hamburger.style.display = "block";
 }

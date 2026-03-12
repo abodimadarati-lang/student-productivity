@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scholarly</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800&display=swap" rel="stylesheet" />
 
 </head>
 <body>
@@ -128,27 +129,14 @@
     <!-- gpa calculator -->
     <section id="gpa-calc" class="page">
       <h2>GPA Calculator</h2>
-      <p class="page-subtitle">Add courses to calculate your cumulative GPA.</p>
+      <p class="page-subtitle">Add courses to calculate your average out of 100.</p>
       <form id="gpa-entry-form" class="inline-form">
-        <input type="text" id="course-name" placeholder="e.g. Calculus II, English Lit" required />
-        <select id="course-letter-grade" required>
-          <option value="" disabled selected>Grade</option>
-          <option value="4.0">A</option>
-          <option value="3.7">A-</option>
-          <option value="3.3">B+</option>
-          <option value="3.0">B</option>
-          <option value="2.7">B-</option>
-          <option value="2.3">C+</option>
-          <option value="2.0">C</option>
-          <option value="1.7">C-</option>
-          <option value="1.0">D</option>
-          <option value="0.0">F</option>
-        </select>
-        <input type="number" id="course-credits" placeholder="Credits" min="1" max="6" required />
+        <input type="text"   id="course-name"  placeholder="e.g. Calculus II, English Lit" required />
+        <input type="number" id="course-grade" placeholder="Grade (0–100)" min="0" max="100" required />
         <button type="submit">Add</button>
       </form>
       <ul id="course-list" class="entry-list"></ul>
-      <div class="result-display">GPA: <strong id="gpa-output">—</strong></div>
+      <div class="result-display">Average: <strong id="gpa-output">—</strong>%</div>
     </section>
 
     <!-- flashcards -->

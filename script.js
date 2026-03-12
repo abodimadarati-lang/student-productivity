@@ -571,3 +571,141 @@ if (loadFromStorage("sidebarCollapsed", false)) {
   sideNav.classList.add("collapsed");
   hamburger.style.display = "block";
 }
+
+
+// STUDY STREAK
+// increments if you open the app on a new day, resets if you miss a day
+
+function updateStreak() {
+  const today     = new Date().toDateString();
+  const lastVisit = loadFromStorage("lastVisitDate", null);
+  let streak      = loadFromStorage("studyStreak", 0);
+
+  if (lastVisit === today) {
+    // already visited today, just show the current streak
+  } else if (lastVisit === new Date(Date.now() - 86400000).toDateString()) {
+    // visited yesterday so increment the streak
+    streak++;
+    saveToStorage("studyStreak", streak);
+    saveToStorage("lastVisitDate", today);
+  } else {
+    // missed a day or first visit ever, reset
+    streak = 1;
+    saveToStorage("studyStreak", streak);
+    saveToStorage("lastVisitDate", today);
+  }
+
+  document.getElementById("streakCount").textContent = streak + " 🔥";
+}
+
+updateStreak();
+
+
+// THEME CUSTOMIZER
+// 5 color pickers that update CSS variables live and save to localStorage
+
+const defaultColors = {
+  accent:  "#1e4d9b",
+  sidebar: "#1a1a1a",
+  bg:      "#f4f4ef",
+  text:    "#1a1a1a",
+  danger:  "#8b1a1a"
+};
+
+// apply a color to a CSS variable on the root element
+function applyColor(variable, value) {
+  document.documentElement.style.setProperty(variable, value);
+}
+
+// load saved colors or fall back to defaults
+function loadThemeColors() {
+  const saved = loadFromStorage("themeColors", defaultColors);
+  applyColor("--blue",    saved.accent);
+  applyColor("--blue-hover", shadeColor(saved.accent, -15));
+  applyColor("--blue-light", hexToRgba(saved.accent, 0.12));
+  applyColor("--side-bg", saved.sidebar);
+  applyColor("--bg",      saved.bg);
+  applyColor("--text",    saved.text);
+  applyColor("--red",     saved.danger);
+  applyColor("--red-hover", shadeColor(saved.danger, -15));
+
+  // set the color picker values to match
+  document.getElementById("colorAccent").value  = saved.accent;
+  document.getElementById("colorSidebar").value = saved.sidebar;
+  document.getElementById("colorBg").value      = saved.bg;
+  document.getElementById("colorText").value    = saved.text;
+  document.getElementById("colorDanger").value  = saved.danger;
+}
+
+// darken or lighten a hex color by a percentage
+function shadeColor(hex, percent) {
+  const num = parseInt(hex.replace("#",""), 16);
+  const r = Math.min(255, Math.max(0, (num >> 16) + percent));
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + percent));
+  const b = Math.min(255, Math.max(0, (num & 0xff) + percent));
+  return "#" + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+}
+
+// convert hex to rgba for the light tint variants
+function hexToRgba(hex, alpha) {
+  const num = parseInt(hex.replace("#",""), 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8)  & 255;
+  const b =  num        & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// wire up each color picker to update live
+document.getElementById("colorAccent").addEventListener("input", e => {
+  const v = e.target.value;
+  applyColor("--blue",       v);
+  applyColor("--blue-hover", shadeColor(v, -15));
+  applyColor("--blue-light", hexToRgba(v, 0.12));
+  saveThemeColors();
+});
+
+document.getElementById("colorSidebar").addEventListener("input", e => {
+  applyColor("--side-bg", e.target.value);
+  saveThemeColors();
+});
+
+document.getElementById("colorBg").addEventListener("input", e => {
+  applyColor("--bg", e.target.value);
+  saveThemeColors();
+});
+
+document.getElementById("colorText").addEventListener("input", e => {
+  applyColor("--text", e.target.value);
+  saveThemeColors();
+});
+
+document.getElementById("colorDanger").addEventListener("input", e => {
+  const v = e.target.value;
+  applyColor("--red",       v);
+  applyColor("--red-hover", shadeColor(v, -15));
+  saveThemeColors();
+});
+
+function saveThemeColors() {
+  saveToStorage("themeColors", {
+    accent:  document.getElementById("colorAccent").value,
+    sidebar: document.getElementById("colorSidebar").value,
+    bg:      document.getElementById("colorBg").value,
+    text:    document.getElementById("colorText").value,
+    danger:  document.getElementById("colorDanger").value
+  });
+}
+
+// reset all colors back to defaults
+document.getElementById("themeResetBtn").addEventListener("click", () => {
+  saveToStorage("themeColors", defaultColors);
+  loadThemeColors();
+});
+
+// slide the theme panel open/closed
+document.getElementById("themeToggleBtn").addEventListener("click", () => {
+  document.getElementById("themePanel").classList.toggle("open");
+});
+
+// apply colors on page load
+loadThemeColors();

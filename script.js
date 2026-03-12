@@ -543,3 +543,27 @@ renderFlashcards();
 renderExamGrid();
 refreshDashboard();
 updateClockDisplay();
+
+
+
+// COLLAPSIBLE SIDEBAR
+// clicking the logo or hamburger toggles the sidebar
+
+const sideNav       = document.getElementById("sideNav");
+const sidebarToggle = document.getElementById("sidebarToggle");
+const hamburger     = document.getElementById("hamburger");
+
+function toggleSidebar() {
+  const isHidden = sideNav.classList.toggle("collapsed");
+  hamburger.style.display = isHidden ? "block" : "none";
+  saveToStorage("sidebarCollapsed", isHidden);
+}
+
+sidebarToggle.addEventListener("click", toggleSidebar);
+hamburger.addEventListener("click", toggleSidebar);
+
+// restore sidebar state from last session
+if (loadFromStorage("sidebarCollapsed", false)) {
+  sideNav.classList.add("collapsed");
+  hamburger.style.display = "block";
+}

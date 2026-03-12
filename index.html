@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scholarly</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- google font, looks way better than the default -->
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Geist for headings, Inter for body - clean modern pairing -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
 <div class="app-wrapper">
@@ -15,7 +15,7 @@
   <aside class="side-nav" id="sideNav">
     <button class="brand-name" id="sidebarToggle">Scholarly</button>
 
-    <p class="nav-section-label">Navigation</p>
+    <p class="nav-section-label">Menu</p>
     <nav class="page-nav">
       <ul>
         <li><button class="page-link active" data-page="dashboard">Dashboard</button></li>
@@ -29,44 +29,13 @@
       </ul>
     </nav>
 
-    <!-- bottom of sidebar: dark mode + theme customizer -->
+    <!-- dark mode toggle at the bottom -->
     <div class="nav-footer">
-
-      <!-- dark mode toggle -->
       <label class="dark-mode-toggle">
         <input type="checkbox" id="darkModeSwitch" />
         <span class="toggle-track"><span class="toggle-knob"></span></span>
         Dark Mode
       </label>
-
-      <!-- theme color customizer - slide open panel -->
-      <div class="theme-section">
-        <button class="theme-toggle-btn" id="themeToggleBtn">🎨 Customize Colors</button>
-        <div class="theme-panel" id="themePanel">
-          <div class="theme-row">
-            <label>Accent</label>
-            <input type="color" id="colorAccent" title="Accent color" />
-          </div>
-          <div class="theme-row">
-            <label>Sidebar</label>
-            <input type="color" id="colorSidebar" title="Sidebar color" />
-          </div>
-          <div class="theme-row">
-            <label>Background</label>
-            <input type="color" id="colorBg" title="Background color" />
-          </div>
-          <div class="theme-row">
-            <label>Text</label>
-            <input type="color" id="colorText" title="Text color" />
-          </div>
-          <div class="theme-row">
-            <label>Danger</label>
-            <input type="color" id="colorDanger" title="Danger color" />
-          </div>
-          <button class="theme-reset-btn" id="themeResetBtn">↺ Reset to Default</button>
-        </div>
-      </div>
-
     </div>
   </aside>
 
@@ -76,15 +45,14 @@
   <!-- main content, js shows/hides each section -->
   <main class="page-content">
 
-    <!-- dashboard - shows overview stats -->
+    <!-- dashboard -->
     <section id="dashboard" class="page active">
-      <h2>Welcome back 👋</h2>
+      <h2>Dashboard</h2>
       <p class="page-subtitle">Your productivity at a glance.</p>
 
       <div class="stats-row">
         <div class="stat-tile">
           <div class="stat-label">Assignments Left</div>
-          <!-- gets updated by js -->
           <div class="stat-number" id="pendingAssignmentCount">0</div>
         </div>
         <div class="stat-tile">
@@ -93,14 +61,12 @@
         </div>
         <div class="stat-tile">
           <div class="stat-label">Study Time</div>
-          <!-- adds 25 every time the timer finishes -->
           <div class="stat-number" id="totalStudyTime">0 min</div>
         </div>
         <div class="stat-tile">
           <div class="stat-label">Next Exam</div>
           <div class="stat-number" id="upcomingExamPreview">—</div>
         </div>
-        <!-- streak tile - updates by js -->
         <div class="stat-tile">
           <div class="stat-label">Study Streak</div>
           <div class="stat-number" id="streakCount">0 🔥</div>
@@ -108,31 +74,27 @@
       </div>
     </section>
 
-    <!-- assignments page -->
+    <!-- assignments -->
     <section id="homework" class="page">
       <h2>Assignments</h2>
       <p class="page-subtitle">Track homework and due dates.</p>
-
       <form id="new-homework-form" class="inline-form">
         <input type="text" id="homework-name" placeholder="e.g. Chapter 5 Essay, Math Problem Set" required />
-        <input type="date" id="homework-due"  required />
+        <input type="date" id="homework-due" required />
         <button type="submit">Add</button>
       </form>
-
       <ul id="homework-list" class="entry-list"></ul>
     </section>
 
-    <!-- planner page -->
+    <!-- planner -->
     <section id="daily-plan" class="page">
       <h2>Daily Planner</h2>
       <p class="page-subtitle">Plan your study tasks for today.</p>
-
       <form id="new-task-form" class="inline-form">
         <input type="text" id="task-description" placeholder="e.g. Review lecture notes, Read Chapter 3" required />
-        <input type="time" id="task-time"         required />
+        <input type="time" id="task-time" required />
         <button type="submit">Add</button>
       </form>
-
       <ul id="task-list" class="entry-list"></ul>
     </section>
 
@@ -140,13 +102,10 @@
     <section id="focus-timer" class="page">
       <h2>Pomodoro Timer</h2>
       <p class="page-subtitle">25 min focus · 5 min break.</p>
-
-      <!-- the big timer numbers -->
       <div class="clock-face">
         <span id="clock-minutes">25</span>:<span id="clock-seconds">00</span>
       </div>
       <div class="session-label" id="session-type-label">Focus Session</div>
-
       <div class="timer-controls">
         <button id="timer-start-btn">▶ Start</button>
         <button id="timer-pause-btn" class="ghost">⏸ Pause</button>
@@ -158,15 +117,12 @@
     <section id="grade-calc" class="page">
       <h2>Grade Calculator</h2>
       <p class="page-subtitle">Enter up to three grades to get your average.</p>
-
       <form id="grades-form" class="inline-form">
-        <!-- leave blank if you only have 1 or 2 grades -->
         <input type="number" class="grade-entry" placeholder="Grade 1" min="0" max="100" required />
         <input type="number" class="grade-entry" placeholder="Grade 2" min="0" max="100" />
         <input type="number" class="grade-entry" placeholder="Grade 3" min="0" max="100" />
         <button type="submit">Calculate</button>
       </form>
-
       <div class="result-display">Average: <strong id="calculated-avg">—</strong>%</div>
     </section>
 
@@ -174,9 +130,8 @@
     <section id="gpa-calc" class="page">
       <h2>GPA Calculator</h2>
       <p class="page-subtitle">Add courses to calculate your cumulative GPA.</p>
-
       <form id="gpa-entry-form" class="inline-form">
-        <input type="text"   id="course-name"          placeholder="e.g. Calculus II, English Lit" required />
+        <input type="text" id="course-name" placeholder="e.g. Calculus II, English Lit" required />
         <select id="course-letter-grade" required>
           <option value="" disabled selected>Grade</option>
           <option value="4.0">A</option>
@@ -193,7 +148,6 @@
         <input type="number" id="course-credits" placeholder="Credits" min="1" max="6" required />
         <button type="submit">Add</button>
       </form>
-
       <ul id="course-list" class="entry-list"></ul>
       <div class="result-display">GPA: <strong id="gpa-output">—</strong></div>
     </section>
@@ -202,17 +156,12 @@
     <section id="study-cards" class="page">
       <h2>Flashcards</h2>
       <p class="page-subtitle">Add cards, click to flip, use arrows to navigate.</p>
-
       <form id="new-card-form" class="inline-form">
         <input type="text" id="card-front-text" placeholder="e.g. What is Newton's 2nd Law?" required />
-        <input type="text" id="card-back-text"  placeholder="e.g. Force = mass × acceleration" required />
+        <input type="text" id="card-back-text" placeholder="e.g. Force = mass × acceleration" required />
         <button type="submit">Add Card</button>
       </form>
-
-      <!-- only shows if there are no cards yet -->
       <p id="empty-deck-msg" class="empty-state-msg">No flashcards yet — add one above!</p>
-
-      <!-- the actual card viewer, hidden until you add a card -->
       <div id="card-viewer" class="card-viewer" style="display:none;">
         <div id="active-card" class="flip-card">
           <div class="flip-card-inner">
@@ -220,18 +169,15 @@
             <div class="flip-card-back"><p id="card-back-display"></p></div>
           </div>
         </div>
-
         <p class="flip-hint">Click card to flip</p>
-
         <div class="card-nav-row">
           <button id="prev-card-btn" class="ghost">← Prev</button>
           <span id="card-position-label">1 / 1</span>
           <button id="next-card-btn" class="ghost">Next →</button>
         </div>
-
         <div class="card-action-row">
           <button id="shuffle-deck-btn" class="outline">🔀 Shuffle</button>
-          <button id="delete-card-btn"  class="danger-btn">🗑 Delete</button>
+          <button id="delete-card-btn" class="danger-btn">🗑 Delete</button>
         </div>
       </div>
     </section>
@@ -240,13 +186,11 @@
     <section id="exam-tracker" class="page">
       <h2>Exam Countdown</h2>
       <p class="page-subtitle">See how many days until each exam.</p>
-
       <form id="new-exam-form" class="inline-form">
         <input type="text" id="exam-name-input" placeholder="e.g. Biology Midterm, History Final" required />
         <input type="date" id="exam-date-input" required />
         <button type="submit">Add Exam</button>
       </form>
-
       <p id="no-exams-msg" class="empty-state-msg">No exams added yet.</p>
       <div id="exam-cards-grid" class="exam-grid"></div>
     </section>

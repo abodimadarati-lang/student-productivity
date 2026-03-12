@@ -126,6 +126,7 @@ function renderHomeworkList() {
       doneTaskCount++;
       saveToStorage("tasksCompleted", doneTaskCount);
 
+      launchConfetti();
       renderHomeworkList();
       refreshDashboard();
     };
@@ -180,6 +181,7 @@ function renderTaskList() {
       doneTaskCount++;
       saveToStorage("tasksCompleted", doneTaskCount);
 
+      launchConfetti();
       renderTaskList();
       refreshDashboard();
     };
@@ -190,22 +192,6 @@ function renderTaskList() {
   });
 }
 
-
-// GRADE CALCULATOR
-// ignores empty inputs, only averages the ones you filled in
-
-document.getElementById("grades-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const filled = [...document.querySelectorAll(".grade-entry")]
-    .map(input => parseFloat(input.value))
-    .filter(val => !isNaN(val));
-
-  if (!filled.length) return;
-
-  const avg = filled.reduce((sum, v) => sum + v, 0) / filled.length;
-  document.getElementById("calculated-avg").textContent = avg.toFixed(2);
-});
 
 
 // GPA CALCULATOR
@@ -585,3 +571,90 @@ function updateStreak() {
 }
 
 updateStreak();
+
+
+
+
+// WELCOME SCREEN
+// shows on first ever visit, asks for name, saves it, never shows again
+
+function initWelcome() {
+  const savedName = loadFromStorage("userName", null);
+
+  if (savedName) {
+    // already set - just update the greeting
+    setGreeting(savedName);
+    return;
+  }
+
+  // first visit - show the overlay
+  const overlay = document.getElementById("welcome-overlay");
+  overlay.style.display = "flex";
+
+  // focus the input automatically
+  setTimeout(() => document.getElementById("welcome-name-input").focus(), 100);
+
+  // submit on button click
+  document.getElementById("welcome-submit-btn").addEventListener("click", submitName);
+
+  // also submit on Enter key
+  document.getElementById("welcome-name-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") submitName();
+  });
+}
+
+function submitName() {
+  const input = document.getElementById("welcome-name-input");
+  const name  = input.value.trim();
+  if (!name) { input.focus(); return; }
+
+  saveToStorage("userName", name);
+  document.getElementById("welcome-overlay").style.display = "none";
+  setGreeting(name);
+}
+
+function setGreeting(name) {
+  const hour = new Date().getHours();
+  const time = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const el   = document.getElementById("dashboard-greeting");
+  if (el) el.textContent = time + ", " + name + " 👋";
+}
+
+initWelcome();
+
+
+// CONFETTI
+// fires when you mark an assignment or task as done
+
+function launchConfetti() {
+  const colors = ["#2563eb", "#60a5fa", "#93c5fd", "#ffffff", "#bfdbfe"];
+  const count  = 80;
+
+  for (let i = 0; i < count; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+
+    // random position, color, size, rotation
+    const color  = colors[Math.floor(Math.random() * colors.length)];
+    const left   = Math.random() * 100;
+    const width  = Math.random() * 8 + 5;
+    const height = Math.random() * 5 + 4;
+    const delay  = Math.random() * 0.4;
+    const dur    = Math.random() * 1 + 1.2;
+
+    piece.style.cssText = `
+      left: ${left}vw;
+      width: ${width}px;
+      height: ${height}px;
+      background: ${color};
+      animation-delay: ${delay}s;
+      animation-duration: ${dur}s;
+      transform: rotate(${Math.random() * 360}deg);
+    `;
+
+    document.body.appendChild(piece);
+
+    // remove piece after animation finishes
+    setTimeout(() => piece.remove(), (delay + dur) * 1000 + 200);
+  }
+}

@@ -3,19 +3,27 @@
 /* style.css - all the styles for scholarly */
 
 
-/* colors and stuff - makes it easier to change the theme later */
+/* colors pulled from the school logo:
+   blue  #1e4d9b - sidebar background, buttons, accents
+   red   #8b1a1a - danger actions, urgent exams, delete
+   green #4a8c3f - done/success actions, stat cards */
 
 :root {
-  --bg:        #f4f4ef;
-  --surface:   #ffffff;
-  --surface2:  #ebebeb;
-  --border:    #e2e2dc;
-  --accent:    #1a3a6b;
-  --accent-hover: #142d54;
-  --danger:    #8b1a1a;
-  --warn:      #8b1a1a;
-  --text:      #1a1a1a;
-  --muted:     #71717a;
+  --bg:           #f4f4ef;
+  --surface:      #ffffff;
+  --surface2:     #ebebeb;
+  --border:       #ddddd8;
+  --blue:         #1e4d9b;
+  --blue-hover:   #163d7a;
+  --blue-light:   #e8edf7;
+  --red:          #8b1a1a;
+  --red-hover:    #6e1515;
+  --red-light:    #fdf0f0;
+  --green:        #4a8c3f;
+  --green-hover:  #3a6f31;
+  --green-light:  #eef6ec;
+  --text:         #1a1a1a;
+  --muted:        #71717a;
 
   --sidebar-width: 230px;
   --radius:    12px;
@@ -64,11 +72,11 @@ body {
 }
 
 
-/* sidebar */
+/* sidebar - deep blue background so all three colors show */
 
 .side-nav {
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+  background: var(--blue);
+  border-right: none;
   display: flex;
   flex-direction: column;
   padding: 1.75rem 1rem;
@@ -77,13 +85,13 @@ body {
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  transition: background var(--transition), border-color var(--transition);
+  transition: background var(--transition);
 }
 
 .brand-name {
   font-size: 1.3rem;
   font-weight: 800;
-  color: var(--accent);
+  color: #ffffff;
   letter-spacing: -.3px;
   padding: 0 .5rem;
   margin-bottom: 1.75rem;
@@ -108,7 +116,7 @@ body {
   text-align: left;
   background: none;
   border: none;
-  color: var(--muted);
+  color: rgba(255,255,255,0.65);
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .875rem;
   font-weight: 500;
@@ -120,20 +128,21 @@ body {
 }
 
 .page-link:hover {
-  background: var(--surface2);
-  color: var(--text);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
   transform: none;
   box-shadow: none;
 }
 
 .page-link.active {
-  background: var(--accent);
-  color: #fff;
-  font-weight: 600;
+  background: #ffffff;
+  color: var(--blue);
+  font-weight: 700;
 }
 
 .page-link.active:hover {
-  background: var(--accent-hover);
+  background: #f0f4ff;
+  color: var(--blue);
 }
 
 
@@ -142,7 +151,7 @@ body {
 .nav-footer {
   margin-top: auto;
   padding-top: 1.25rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(255,255,255,0.2);
 }
 
 .dark-mode-toggle {
@@ -150,7 +159,7 @@ body {
   align-items: center;
   gap: .6rem;
   font-size: .85rem;
-  color: var(--muted);
+  color: rgba(255,255,255,0.65);
   cursor: pointer;
   padding: .4rem .5rem;
   border-radius: 8px;
@@ -158,14 +167,14 @@ body {
   user-select: none;
 }
 
-.dark-mode-toggle:hover { background: var(--surface2); }
+.dark-mode-toggle:hover { background: rgba(255,255,255,0.12); }
 .dark-mode-toggle input { display: none; }
 
 /* the sliding toggle switch thing */
 .toggle-track {
   width: 34px;
   height: 18px;
-  background: var(--border);
+  background: rgba(255,255,255,0.25);
   border-radius: 18px;
   flex-shrink: 0;
   position: relative;
@@ -183,7 +192,7 @@ body {
   transition: left var(--transition);
 }
 
-.dark-mode-toggle input:checked ~ .toggle-track { background: var(--accent); }
+.dark-mode-toggle input:checked ~ .toggle-track { background: var(--green); }
 .dark-mode-toggle input:checked ~ .toggle-track .toggle-knob { left: 19px; }
 
 
@@ -214,6 +223,7 @@ body {
   font-weight: 800;
   letter-spacing: -.4px;
   margin-bottom: .25rem;
+  color: var(--blue);
 }
 
 .page-subtitle {
@@ -223,7 +233,7 @@ body {
 }
 
 
-/* dashboard stat cards */
+/* dashboard stat cards - use all three colors */
 
 .stats-row {
   display: grid;
@@ -239,7 +249,13 @@ body {
   padding: 1.25rem;
   box-shadow: var(--shadow);
   transition: transform var(--transition);
+  border-top: 3px solid var(--blue);
 }
+
+/* alternate border colors so all three show on dashboard */
+.stat-tile:nth-child(2) { border-top-color: var(--green); }
+.stat-tile:nth-child(3) { border-top-color: var(--red); }
+.stat-tile:nth-child(4) { border-top-color: var(--blue); }
 
 .stat-tile:hover { transform: translateY(-2px); }
 
@@ -255,11 +271,12 @@ body {
 .stat-number {
   font-size: 2.25rem;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--blue);
   line-height: 1;
 }
 
-
+.stat-tile:nth-child(2) .stat-number { color: var(--green); }
+.stat-tile:nth-child(3) .stat-number { color: var(--red); }
 
 
 /* forms */
@@ -300,8 +317,8 @@ select {
 input:focus,
 select:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(26, 58, 107, .15);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(30, 77, 155, .15);
 }
 
 input::placeholder { color: var(--muted); }
@@ -312,13 +329,13 @@ select option {
 }
 
 
-/* buttons */
+/* buttons - blue by default */
 
 button {
   padding: .55rem 1.1rem;
   border: none;
   border-radius: 8px;
-  background: var(--accent);
+  background: var(--blue);
   color: #fff;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: .875rem;
@@ -330,7 +347,7 @@ button {
 }
 
 button:hover {
-  background: var(--accent-hover);
+  background: var(--blue-hover);
   transform: translateY(-1px);
   box-shadow: none;
 }
@@ -348,14 +365,14 @@ button:active { transform: none; }
   color: var(--text);
 }
 
-/* accent outline */
+/* green outline - used for shuffle */
 .outline {
   background: transparent;
-  border: 1.5px solid var(--accent);
-  color: var(--accent);
+  border: 1.5px solid var(--green);
+  color: var(--green);
 }
 .outline:hover {
-  background: var(--accent);
+  background: var(--green);
   color: #fff;
 }
 
@@ -366,12 +383,12 @@ button:active { transform: none; }
   color: var(--muted);
 }
 .danger-btn:hover {
-  background: var(--danger);
-  border-color: var(--danger);
+  background: var(--red);
+  border-color: var(--red);
   color: #fff;
 }
 
-/* small done/remove button on each list item */
+/* small done/remove button - green for done, red for remove on hover */
 .done-btn {
   padding: .3rem .7rem;
   font-size: .8rem;
@@ -382,8 +399,8 @@ button:active { transform: none; }
   flex-shrink: 0;
 }
 .done-btn:hover {
-  background: #4a8c3f;
-  border-color: #4a8c3f;
+  background: var(--green);
+  border-color: var(--green);
   color: #fff;
   transform: none;
 }
@@ -401,6 +418,7 @@ button:active { transform: none; }
 .entry-list li {
   background: var(--surface);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
   border-radius: 10px;
   padding: .8rem 1rem;
   display: flex;
@@ -411,7 +429,7 @@ button:active { transform: none; }
   transition: background var(--transition);
 }
 
-.entry-list li:hover { background: var(--surface2); }
+.entry-list li:hover { background: var(--blue-light); }
 
 /* the little due date text */
 .entry-list li span em {
@@ -425,6 +443,7 @@ button:active { transform: none; }
   font-style: italic;
   justify-content: center;
   border-style: dashed;
+  border-left-style: dashed;
 }
 
 
@@ -435,6 +454,7 @@ button:active { transform: none; }
   padding: 1rem 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
   border-radius: var(--radius);
   font-size: 1rem;
   color: var(--muted);
@@ -444,7 +464,7 @@ button:active { transform: none; }
 .result-display strong {
   font-size: 1.6rem;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--green);
   margin-left: .4rem;
 }
 
@@ -456,7 +476,7 @@ button:active { transform: none; }
   font-weight: 800;
   letter-spacing: -4px;
   text-align: center;
-  color: var(--text);
+  color: var(--blue);
   padding: 2rem 0 .5rem;
   line-height: 1;
 }
@@ -529,16 +549,18 @@ button:active { transform: none; }
   box-shadow: var(--shadow);
 }
 
+/* front is blue, back is green when flipped */
 .flip-card-front {
-  background: var(--surface);
-  color: var(--text);
+  background: var(--blue-light);
+  color: var(--blue);
+  border-color: var(--blue);
 }
 
 .flip-card-back {
-  background: var(--accent);
+  background: var(--green);
   color: #fff;
   transform: rotateY(180deg);
-  border-color: var(--accent);
+  border-color: var(--green);
 }
 
 .flip-hint {
@@ -589,6 +611,7 @@ button:active { transform: none; }
 .exam-card {
   background: var(--surface);
   border: 1px solid var(--border);
+  border-top: 3px solid var(--blue);
   border-radius: var(--radius);
   padding: 1.25rem;
   display: flex;
@@ -600,22 +623,22 @@ button:active { transform: none; }
 
 .exam-card:hover { transform: translateY(-2px); }
 
-/* yellow = coming up soon, red = really soon */
-.exam-card.soon   { border-color: var(--warn);   background: #fff8ee; }
-.exam-card.urgent { border-color: var(--danger);  background: #fff5f5; }
+/* green = coming up soon, red = really soon */
+.exam-card.soon   { border-top-color: var(--green); background: var(--green-light); }
+.exam-card.urgent { border-top-color: var(--red);   background: var(--red-light); }
 
-body.dark .exam-card.soon   { background: #1f1800; }
+body.dark .exam-card.soon   { background: #0f1f0d; }
 body.dark .exam-card.urgent { background: #1f0a0a; }
 
 .exam-days-remaining {
   font-size: 1.9rem;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--blue);
   line-height: 1;
 }
 
-.exam-card.soon   .exam-days-remaining { color: var(--warn); }
-.exam-card.urgent .exam-days-remaining { color: var(--danger); }
+.exam-card.soon   .exam-days-remaining { color: var(--green); }
+.exam-card.urgent .exam-days-remaining { color: var(--red); }
 
 .exam-title      { font-weight: 700; font-size: .95rem; }
 .exam-date-label { font-size: .8rem; color: var(--muted); margin-bottom: .5rem; }
@@ -639,7 +662,7 @@ body.dark .exam-card.urgent { background: #1f0a0a; }
     height: auto;
     padding: 1rem;
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: none;
   }
 
   /* nav goes horizontal on mobile */

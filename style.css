@@ -10,10 +10,10 @@
   --surface:   #ffffff;
   --surface2:  #ebebeb;
   --border:    #e2e2dc;
-  --accent:    #3b5bdb;
-  --accent-hover: #2f4ac4;
-  --danger:    #e03131;
-  --warn:      #f08c00;
+  --accent:    #1a3a6b;
+  --accent-hover: #142d54;
+  --danger:    #8b1a1a;
+  --warn:      #8b1a1a;
   --text:      #1a1a1a;
   --muted:     #71717a;
 
@@ -301,7 +301,7 @@ input:focus,
 select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(59, 91, 219, .15);
+  box-shadow: 0 0 0 3px rgba(26, 58, 107, .15);
 }
 
 input::placeholder { color: var(--muted); }
@@ -382,8 +382,8 @@ button:active { transform: none; }
   flex-shrink: 0;
 }
 .done-btn:hover {
-  background: #12b76a;
-  border-color: #12b76a;
+  background: #4a8c3f;
+  border-color: #4a8c3f;
   color: #fff;
   transform: none;
 }

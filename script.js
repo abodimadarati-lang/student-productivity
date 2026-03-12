@@ -209,24 +209,22 @@ document.getElementById("grades-form").addEventListener("submit", function(e) {
 
 
 // GPA CALCULATOR
-// formula is (grade points * credits) added up, divided by total credits
+// simple average of all course grades out of 100
 
 document.getElementById("gpa-entry-form").addEventListener("submit", function(e) {
   e.preventDefault();
 
-  const courseName  = document.getElementById("course-name").value.trim();
-  const gradePoints = parseFloat(document.getElementById("course-letter-grade").value);
-  const creditHours = parseFloat(document.getElementById("course-credits").value);
+  const courseName = document.getElementById("course-name").value.trim();
+  const grade      = parseFloat(document.getElementById("course-grade").value);
 
-  if (!courseName || isNaN(gradePoints) || isNaN(creditHours)) return;
+  if (!courseName || isNaN(grade)) return;
 
-  gpaCourseList.push({ course: courseName, grade: gradePoints, credits: creditHours });
+  gpaCourseList.push({ course: courseName, grade: grade });
   saveToStorage("gpaCourses", gpaCourseList);
 
   // clear the form
-  document.getElementById("course-name").value         = "";
-  document.getElementById("course-letter-grade").value = "";
-  document.getElementById("course-credits").value      = "";
+  document.getElementById("course-name").value  = "";
+  document.getElementById("course-grade").value = "";
 
   renderGPACourses();
 });
@@ -235,17 +233,15 @@ function renderGPACourses() {
   const list = document.getElementById("course-list");
   list.innerHTML = "";
 
-  let totalPoints  = 0;
-  let totalCredits = 0;
+  let total = 0;
 
   gpaCourseList.forEach((entry, idx) => {
-    totalPoints  += entry.grade * entry.credits;
-    totalCredits += entry.credits;
+    total += entry.grade;
 
     const li   = document.createElement("li");
     const text = document.createElement("span");
 
-    text.innerHTML = entry.course + ' — <strong>' + gradePointsToLetter(entry.grade) + '</strong> (' + entry.credits + ' cr)';
+    text.innerHTML = entry.course + ' — <strong>' + entry.grade + '%</strong>';
 
     const removeBtn = document.createElement("button");
     removeBtn.className   = "done-btn";
@@ -261,19 +257,9 @@ function renderGPACourses() {
     list.appendChild(li);
   });
 
-  // update the GPA result
+  // update the average result
   document.getElementById("gpa-output").textContent =
-    totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "—";
-}
-
-// converts a grade point value back to its letter grade
-function gradePointsToLetter(val) {
-  const map = {
-    4.0: "A", 3.7: "A-", 3.3: "B+", 3.0: "B",
-    2.7: "B-", 2.3: "C+", 2.0: "C", 1.7: "C-",
-    1.0: "D", 0.0: "F"
-  };
-  return map[val] ?? val;
+    gpaCourseList.length > 0 ? (total / gpaCourseList.length).toFixed(2) : "—";
 }
 
 

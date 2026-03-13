@@ -39,6 +39,16 @@
       </ul>
     </nav>
 
+    <p class="nav-section-label">SAT Prep</p>
+    <nav class="page-nav">
+      <ul>
+        <li><button class="page-link" data-page="sat-scores">Score Tracker</button></li>
+        <li><button class="page-link" data-page="sat-errors">Wrong Answers</button></li>
+        <li><button class="page-link" data-page="sat-vocab">SAT Vocab</button></li>
+        <li><button class="page-link" data-page="sat-formulas">Formula Sheet</button></li>
+      </ul>
+    </nav>
+
     <!-- dark mode toggle at the bottom -->
     <div class="nav-footer">
       <label class="dark-mode-toggle">
@@ -178,6 +188,88 @@
       </form>
       <p id="no-exams-msg" class="empty-state-msg">No exams added yet.</p>
       <div id="exam-cards-grid" class="exam-grid"></div>
+    </section>
+
+
+    <!-- ── SAT PREP ───────────────────────────── -->
+
+    <!-- sat score tracker -->
+    <section id="sat-scores" class="page">
+      <h2>SAT Score Tracker</h2>
+      <p class="page-subtitle">Log practice test scores and track your progress.</p>
+
+      <form id="sat-score-form" class="inline-form">
+        <input type="date"   id="sat-score-date"    required />
+        <input type="number" id="sat-score-math"    placeholder="Math (200–800)"    min="200" max="800" step="10" required />
+        <input type="number" id="sat-score-reading" placeholder="Reading (200–800)" min="200" max="800" step="10" required />
+        <button type="submit">Add Score</button>
+      </form>
+
+      <p id="sat-scores-empty" class="empty-state-msg">No scores logged yet — add your first practice test above!</p>
+      <div id="sat-scores-list" class="sat-scores-list"></div>
+
+      <div id="sat-scores-summary" class="sat-summary" style="display:none;">
+        <div class="sat-summary-tile">
+          <div class="stat-label">Best Total</div>
+          <div class="stat-number" id="sat-best-total">—</div>
+        </div>
+        <div class="sat-summary-tile">
+          <div class="stat-label">Latest Total</div>
+          <div class="stat-number" id="sat-latest-total">—</div>
+        </div>
+        <div class="sat-summary-tile">
+          <div class="stat-label">Improvement</div>
+          <div class="stat-number" id="sat-improvement">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- sat wrong answer logger -->
+    <section id="sat-errors" class="page">
+      <h2>Wrong Answer Log</h2>
+      <p class="page-subtitle">Log mistakes so you don't repeat them on test day.</p>
+
+      <form id="sat-error-form" class="inline-form">
+        <select id="sat-error-section" required>
+          <option value="" disabled selected>Section</option>
+          <option value="Math">Math</option>
+          <option value="Reading &amp; Writing">Reading &amp; Writing</option>
+        </select>
+        <input type="text" id="sat-error-topic"  placeholder="Topic (e.g. Linear equations)" required />
+        <input type="text" id="sat-error-reason" placeholder="Why? (e.g. Careless mistake)" required />
+        <button type="submit">Log</button>
+      </form>
+
+      <p id="sat-errors-empty" class="empty-state-msg">No mistakes logged yet — add one above!</p>
+      <ul id="sat-errors-list" class="entry-list"></ul>
+    </section>
+
+    <!-- sat vocab flashcards -->
+    <section id="sat-vocab" class="page">
+      <h2>SAT Vocab</h2>
+      <p class="page-subtitle">High-frequency SAT words — click a card to see the definition.</p>
+
+      <div class="sat-vocab-controls">
+        <button id="sat-vocab-prev" class="ghost">← Prev</button>
+        <span id="sat-vocab-pos">1 / 50</span>
+        <button id="sat-vocab-next" class="ghost">Next →</button>
+        <button id="sat-vocab-shuffle" class="outline">🔀 Shuffle</button>
+      </div>
+
+      <div id="sat-vocab-card" class="flip-card" style="max-width:520px; height:230px; margin:.75rem auto 0;">
+        <div class="flip-card-inner">
+          <div class="flip-card-front"><p id="sat-vocab-word" style="font-size:1.4rem; font-weight:700;"></p></div>
+          <div class="flip-card-back"><p id="sat-vocab-def"></p></div>
+        </div>
+      </div>
+      <p class="flip-hint" style="text-align:center; margin-top:.5rem;">Click card to see definition</p>
+    </section>
+
+    <!-- sat formula sheet -->
+    <section id="sat-formulas" class="page">
+      <h2>Formula Sheet</h2>
+      <p class="page-subtitle">Every math formula you need to know for the SAT.</p>
+      <div class="formula-grid" id="formula-grid"></div>
     </section>
 
   </main>

@@ -658,3 +658,308 @@ function launchConfetti() {
     setTimeout(() => piece.remove(), (delay + dur) * 1000 + 200);
   }
 }
+
+
+// ─────────────────────────────────────────
+// SAT SCORE TRACKER
+// ─────────────────────────────────────────
+
+let satScores = loadFromStorage("satScores", []);
+
+document.getElementById("sat-score-form").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const date    = document.getElementById("sat-score-date").value;
+  const math    = parseInt(document.getElementById("sat-score-math").value);
+  const reading = parseInt(document.getElementById("sat-score-reading").value);
+  if (!date || isNaN(math) || isNaN(reading)) return;
+
+  satScores.push({ date, math, reading, total: math + reading });
+  saveToStorage("satScores", satScores);
+
+  document.getElementById("sat-score-date").value    = "";
+  document.getElementById("sat-score-math").value    = "";
+  document.getElementById("sat-score-reading").value = "";
+
+  renderSatScores();
+});
+
+function renderSatScores() {
+  const list     = document.getElementById("sat-scores-list");
+  const empty    = document.getElementById("sat-scores-empty");
+  const summary  = document.getElementById("sat-scores-summary");
+  list.innerHTML = "";
+
+  if (!satScores.length) {
+    empty.style.display   = "block";
+    summary.style.display = "none";
+    return;
+  }
+
+  empty.style.display   = "none";
+  summary.style.display = "flex";
+
+  // sort by date oldest first so progress is visible
+  const sorted = [...satScores].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  sorted.forEach((s, idx) => {
+    const row = document.createElement("div");
+    row.className = "sat-score-row";
+
+    const info = document.createElement("div");
+    info.className = "sat-score-info";
+    info.innerHTML = `<span class="sat-score-date-label">${formatDate(s.date)}</span>
+      <span class="sat-score-breakdown">Math <strong>${s.math}</strong> · Reading <strong>${s.reading}</strong></span>`;
+
+    const right = document.createElement("div");
+    right.className = "sat-score-right";
+
+    const total = document.createElement("span");
+    total.className   = "sat-score-total";
+    total.textContent = s.total;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className   = "done-btn";
+    removeBtn.textContent = "Remove";
+    removeBtn.onclick = () => {
+      // find and remove from original unsorted array
+      const i = satScores.findIndex(x => x.date === s.date && x.total === s.total);
+      if (i > -1) satScores.splice(i, 1);
+      saveToStorage("satScores", satScores);
+      renderSatScores();
+    };
+
+    right.appendChild(total);
+    right.appendChild(removeBtn);
+    row.appendChild(info);
+    row.appendChild(right);
+    list.appendChild(row);
+  });
+
+  // update summary tiles
+  const best   = Math.max(...satScores.map(s => s.total));
+  const latest = sorted[sorted.length - 1].total;
+  const first  = sorted[0].total;
+  const diff   = latest - first;
+
+  document.getElementById("sat-best-total").textContent    = best;
+  document.getElementById("sat-latest-total").textContent  = latest;
+  document.getElementById("sat-improvement").textContent   = (diff >= 0 ? "+" : "") + diff;
+}
+
+renderSatScores();
+
+
+// ─────────────────────────────────────────
+// SAT WRONG ANSWER LOGGER
+// ─────────────────────────────────────────
+
+let satErrors = loadFromStorage("satErrors", []);
+
+document.getElementById("sat-error-form").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const section = document.getElementById("sat-error-section").value;
+  const topic   = document.getElementById("sat-error-topic").value.trim();
+  const reason  = document.getElementById("sat-error-reason").value.trim();
+  if (!section || !topic || !reason) return;
+
+  satErrors.push({ section, topic, reason, date: new Date().toDateString() });
+  saveToStorage("satErrors", satErrors);
+
+  document.getElementById("sat-error-section").value = "";
+  document.getElementById("sat-error-topic").value   = "";
+  document.getElementById("sat-error-reason").value  = "";
+
+  renderSatErrors();
+});
+
+function renderSatErrors() {
+  const list     = document.getElementById("sat-errors-list");
+  const empty    = document.getElementById("sat-errors-empty");
+  list.innerHTML = "";
+
+  if (!satErrors.length) { empty.style.display = "block"; return; }
+  empty.style.display = "none";
+
+  // show newest first
+  [...satErrors].reverse().forEach((err, idx) => {
+    const li   = document.createElement("li");
+    const text = document.createElement("span");
+    text.innerHTML = `<strong>${err.section}</strong> — ${err.topic} <em>· ${err.reason}</em>`;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className   = "done-btn";
+    removeBtn.textContent = "Remove";
+    removeBtn.onclick = () => {
+      const realIdx = satErrors.length - 1 - idx;
+      satErrors.splice(realIdx, 1);
+      saveToStorage("satErrors", satErrors);
+      renderSatErrors();
+    };
+
+    li.appendChild(text);
+    li.appendChild(removeBtn);
+    list.appendChild(li);
+  });
+}
+
+renderSatErrors();
+
+
+// ─────────────────────────────────────────
+// SAT VOCAB FLASHCARDS
+// 50 high-frequency SAT words built in
+// ─────────────────────────────────────────
+
+let satVocabList = [
+  { word: "Aberrant",     def: "Departing from an accepted standard; abnormal." },
+  { word: "Acrimony",     def: "Bitterness or ill feeling in speech or manner." },
+  { word: "Adulterate",   def: "To make impure by adding inferior or tainted substances." },
+  { word: "Aesthetic",    def: "Concerned with beauty or the appreciation of beauty." },
+  { word: "Alleviate",    def: "To make suffering or a problem less severe." },
+  { word: "Ambiguous",    def: "Open to more than one interpretation; unclear." },
+  { word: "Anachronism",  def: "Something out of its proper historical time." },
+  { word: "Antipathy",    def: "A deep-seated feeling of dislike or aversion." },
+  { word: "Apathy",       def: "Lack of interest or concern; indifference." },
+  { word: "Arbitrary",    def: "Based on random choice rather than reason or system." },
+  { word: "Arcane",       def: "Known or understood by very few; mysterious." },
+  { word: "Arduous",      def: "Requiring a lot of effort and endurance; difficult." },
+  { word: "Austere",      def: "Severe or strict in manner; without luxury." },
+  { word: "Banal",        def: "Lacking originality; predictably boring." },
+  { word: "Benevolent",   def: "Well-meaning and kindly toward others." },
+  { word: "Cacophony",    def: "A harsh mixture of loud and discordant sounds." },
+  { word: "Candid",       def: "Truthful and straightforward; frank." },
+  { word: "Capricious",   def: "Given to sudden and unaccountable mood changes." },
+  { word: "Circumspect",  def: "Wary and unwilling to take risks; cautious." },
+  { word: "Coalesce",     def: "Come together to form one mass or whole." },
+  { word: "Cogent",       def: "Clear, logical, and convincing in argument." },
+  { word: "Complacent",   def: "Showing uncritical satisfaction with oneself or one's achievements." },
+  { word: "Conciliatory", def: "Intended to make someone less angry or hostile." },
+  { word: "Condone",      def: "To accept or overlook behavior considered wrong." },
+  { word: "Contentious",  def: "Causing or likely to cause disagreement or argument." },
+  { word: "Convoluted",   def: "Extremely complex and difficult to follow." },
+  { word: "Corroborate",  def: "To confirm or support with evidence." },
+  { word: "Cynical",      def: "Believing that people are motivated only by self-interest." },
+  { word: "Deference",    def: "Humble submission and respect toward another." },
+  { word: "Derivative",   def: "Imitative of the work of another; not original." },
+  { word: "Diatribe",     def: "A forceful and bitter verbal attack against someone." },
+  { word: "Didactic",     def: "Intended to teach, often in a preachy way." },
+  { word: "Diffident",    def: "Modest or shy due to a lack of self-confidence." },
+  { word: "Dilettante",   def: "A person who dabbles in a subject without deep knowledge." },
+  { word: "Discordant",   def: "Disagreeing or incongruous; not in harmony." },
+  { word: "Disparate",    def: "Essentially different in kind; not comparable." },
+  { word: "Ebullient",    def: "Cheerful and full of energy; exuberant." },
+  { word: "Enigmatic",    def: "Difficult to interpret or understand; mysterious." },
+  { word: "Ephemeral",    def: "Lasting for a very short time; transitory." },
+  { word: "Equivocal",    def: "Open to more than one interpretation; ambiguous." },
+  { word: "Erudite",      def: "Having or showing great knowledge or learning." },
+  { word: "Esoteric",     def: "Intended for or understood by only a small group." },
+  { word: "Eulogy",       def: "A speech that praises someone, typically after death." },
+  { word: "Exacerbate",   def: "To make a problem or bad situation worse." },
+  { word: "Facetious",    def: "Treating serious issues with inappropriate humor." },
+  { word: "Florid",       def: "Elaborately ornate; having too much decoration." },
+  { word: "Garrulous",    def: "Excessively talkative, especially on trivial matters." },
+  { word: "Gratuitous",   def: "Uncalled for; lacking good reason; unwarranted." },
+  { word: "Hackneyed",    def: "Lacking originality due to overuse; trite." },
+  { word: "Iconoclast",   def: "A person who attacks cherished beliefs or institutions." }
+];
+
+let satVocabIndex = 0;
+
+function renderSatVocab() {
+  const card = satVocabList[satVocabIndex];
+  document.getElementById("sat-vocab-word").textContent = card.word;
+  document.getElementById("sat-vocab-def").textContent  = card.def;
+  document.getElementById("sat-vocab-pos").textContent  = (satVocabIndex + 1) + " / " + satVocabList.length;
+  // reset flip state
+  document.getElementById("sat-vocab-card").classList.remove("flipped");
+}
+
+document.getElementById("sat-vocab-card").addEventListener("click", () => {
+  document.getElementById("sat-vocab-card").classList.toggle("flipped");
+});
+
+document.getElementById("sat-vocab-next").addEventListener("click", () => {
+  satVocabIndex = (satVocabIndex + 1) % satVocabList.length;
+  renderSatVocab();
+});
+
+document.getElementById("sat-vocab-prev").addEventListener("click", () => {
+  satVocabIndex = (satVocabIndex - 1 + satVocabList.length) % satVocabList.length;
+  renderSatVocab();
+});
+
+document.getElementById("sat-vocab-shuffle").addEventListener("click", () => {
+  for (let i = satVocabList.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [satVocabList[i], satVocabList[j]] = [satVocabList[j], satVocabList[i]];
+  }
+  satVocabIndex = 0;
+  renderSatVocab();
+});
+
+renderSatVocab();
+
+
+// ─────────────────────────────────────────
+// SAT FORMULA SHEET
+// every formula tested on the SAT
+// ─────────────────────────────────────────
+
+const satFormulas = [
+  { category: "Algebra",      name: "Slope",                  formula: "m = (y₂ − y₁) / (x₂ − x₁)" },
+  { category: "Algebra",      name: "Slope-intercept form",   formula: "y = mx + b" },
+  { category: "Algebra",      name: "Point-slope form",       formula: "y − y₁ = m(x − x₁)" },
+  { category: "Algebra",      name: "Quadratic formula",      formula: "x = (−b ± √(b²−4ac)) / 2a" },
+  { category: "Algebra",      name: "Standard form (line)",   formula: "Ax + By = C" },
+  { category: "Algebra",      name: "Distance formula",       formula: "d = √((x₂−x₁)² + (y₂−y₁)²)" },
+  { category: "Algebra",      name: "Midpoint formula",       formula: "M = ((x₁+x₂)/2, (y₁+y₂)/2)" },
+  { category: "Geometry",     name: "Area of a triangle",     formula: "A = ½ × base × height" },
+  { category: "Geometry",     name: "Area of a circle",       formula: "A = πr²" },
+  { category: "Geometry",     name: "Circumference",          formula: "C = 2πr" },
+  { category: "Geometry",     name: "Area of rectangle",      formula: "A = length × width" },
+  { category: "Geometry",     name: "Pythagorean theorem",    formula: "a² + b² = c²" },
+  { category: "Geometry",     name: "Volume of a cylinder",   formula: "V = πr²h" },
+  { category: "Geometry",     name: "Volume of a cone",       formula: "V = ⅓πr²h" },
+  { category: "Geometry",     name: "Volume of a sphere",     formula: "V = (4/3)πr³" },
+  { category: "Geometry",     name: "Volume of a pyramid",    formula: "V = ⅓ × base area × h" },
+  { category: "Statistics",   name: "Mean",                   formula: "x̄ = Σx / n" },
+  { category: "Statistics",   name: "Percent change",         formula: "% = (new − old) / old × 100" },
+  { category: "Statistics",   name: "Probability",            formula: "P(A) = favorable / total outcomes" },
+  { category: "Trigonometry", name: "sin θ",                  formula: "sin θ = opposite / hypotenuse" },
+  { category: "Trigonometry", name: "cos θ",                  formula: "cos θ = adjacent / hypotenuse" },
+  { category: "Trigonometry", name: "tan θ",                  formula: "tan θ = opposite / adjacent" },
+  { category: "Trigonometry", name: "Pythagorean identity",   formula: "sin²θ + cos²θ = 1" },
+];
+
+function renderFormulas() {
+  const grid = document.getElementById("formula-grid");
+  if (!grid) return;
+
+  // group by category
+  const grouped = {};
+  satFormulas.forEach(f => {
+    if (!grouped[f.category]) grouped[f.category] = [];
+    grouped[f.category].push(f);
+  });
+
+  Object.entries(grouped).forEach(([cat, formulas]) => {
+    const section = document.createElement("div");
+    section.className = "formula-section";
+
+    const heading = document.createElement("h3");
+    heading.className   = "formula-category";
+    heading.textContent = cat;
+    section.appendChild(heading);
+
+    formulas.forEach(f => {
+      const card = document.createElement("div");
+      card.className = "formula-card";
+      card.innerHTML = `<div class="formula-name">${f.name}</div><div class="formula-expr">${f.formula}</div>`;
+      section.appendChild(card);
+    });
+
+    grid.appendChild(section);
+  });
+}
+
+renderFormulas();

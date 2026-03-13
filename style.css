@@ -917,3 +917,50 @@ body.dark .exam-card.urgent { background: #1f0a0a; border-color: #7f1d1d; }
   font-family: 'Courier New', monospace;
   letter-spacing: .01em;
 }
+
+
+/* =============================================
+   THEME SWITCHER
+   ============================================= */
+
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem .75rem .1rem;
+}
+
+.theme-switcher-label {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.3);
+}
+
+.theme-dots {
+  display: flex;
+  gap: .4rem;
+}
+
+.theme-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: transform var(--t), border-color var(--t);
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.theme-dot:hover {
+  transform: scale(1.2);
+  background: inherit;
+}
+
+.theme-dot.active {
+  border-color: #fff;
+  transform: scale(1.15);
+}

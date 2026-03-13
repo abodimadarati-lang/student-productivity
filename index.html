@@ -9,7 +9,7 @@
 
 </head>
 <body>
-<!-- welcome screen - only shows on first visit -->
+<!-- popup that shows when you open the app for the first time -->
 <div id="welcome-overlay" class="welcome-overlay" style="display:none;">
   <div class="welcome-box">
     <div class="welcome-logo">Scholarly</div>
@@ -22,7 +22,7 @@
 
 <div class="app-wrapper">
 
-  <!-- sidebar nav -->
+  <!-- sidebar -->
   <aside class="side-nav" id="sideNav">
     <button class="brand-name" id="sidebarToggle">Scholarly</button>
 
@@ -49,14 +49,14 @@
       </ul>
     </nav>
 
-    <!-- dark mode toggle at the bottom -->
+    <!-- dark mode + theme colors at the bottom -->
     <div class="nav-footer">
       <label class="dark-mode-toggle">
         <input type="checkbox" id="darkModeSwitch" />
         <span class="toggle-track"><span class="toggle-knob"></span></span>
         Dark Mode
       </label>
-      <!-- theme color switcher - 5 preset dots -->
+      <!-- little colored dots to switch the theme -->
       <div class="theme-switcher">
         <span class="theme-switcher-label">Theme</span>
         <div class="theme-dots">
@@ -70,13 +70,13 @@
     </div>
   </aside>
 
-  <!-- hamburger shown when sidebar is hidden -->
+  <!-- this button shows up on mobile when the sidebar is hidden -->
   <button class="hamburger" id="hamburger">☰ Scholarly</button>
 
-  <!-- main content, js shows/hides each section -->
+  <!-- all the pages, js handles switching between them -->
   <main class="page-content">
 
-    <!-- dashboard -->
+    <!-- dashboard - the home screen -->
     <section id="dashboard" class="page active">
       <h2 id="dashboard-greeting">Dashboard</h2>
       <p class="page-subtitle">Your productivity at a glance.</p>
@@ -105,7 +105,7 @@
       </div>
     </section>
 
-    <!-- assignments -->
+    <!-- assignments page -->
     <section id="homework" class="page">
       <h2>Assignments</h2>
       <p class="page-subtitle">Track homework and due dates.</p>
@@ -117,7 +117,7 @@
       <ul id="homework-list" class="entry-list"></ul>
     </section>
 
-    <!-- planner -->
+    <!-- daily planner -->
     <section id="daily-plan" class="page">
       <h2>Daily Planner</h2>
       <p class="page-subtitle">Plan your study tasks for today.</p>
@@ -129,7 +129,7 @@
       <ul id="task-list" class="entry-list"></ul>
     </section>
 
-    <!-- pomodoro timer -->
+    <!-- pomodoro timer (25 min work, 5 min break) -->
     <section id="focus-timer" class="page">
       <h2>Pomodoro Timer</h2>
       <p class="page-subtitle">25 min focus · 5 min break.</p>
@@ -168,6 +168,7 @@
         <button type="submit">Add Card</button>
       </form>
       <p id="empty-deck-msg" class="empty-state-msg">No flashcards yet — add one above!</p>
+      <!-- card viewer is hidden until you add at least one card -->
       <div id="card-viewer" class="card-viewer" style="display:none;">
         <div id="active-card" class="flip-card">
           <div class="flip-card-inner">
@@ -202,9 +203,9 @@
     </section>
 
 
-    <!-- ── SAT PREP ───────────────────────────── -->
+    <!-- SAT PREP STUFF -->
 
-    <!-- sat score tracker -->
+    <!-- log your practice test scores here -->
     <section id="sat-scores" class="page">
       <h2>SAT Score Tracker</h2>
       <p class="page-subtitle">Log practice test scores and track your progress.</p>
@@ -219,6 +220,7 @@
       <p id="sat-scores-empty" class="empty-state-msg">No scores logged yet — add your first practice test above!</p>
       <div id="sat-scores-list" class="sat-scores-list"></div>
 
+      <!-- summary tiles only show once you have scores -->
       <div id="sat-scores-summary" class="sat-summary" style="display:none;">
         <div class="sat-summary-tile">
           <div class="stat-label">Best Total</div>
@@ -235,7 +237,7 @@
       </div>
     </section>
 
-    <!-- sat wrong answer logger -->
+    <!-- log wrong answers so you dont make the same mistake twice -->
     <section id="sat-errors" class="page">
       <h2>Wrong Answer Log</h2>
       <p class="page-subtitle">Log mistakes so you don't repeat them on test day.</p>
@@ -255,14 +257,14 @@
       <ul id="sat-errors-list" class="entry-list"></ul>
     </section>
 
-    <!-- sat vocab flashcards -->
+    <!-- sat vocab - same flip card thing as the regular flashcards -->
     <section id="sat-vocab" class="page">
       <h2>SAT Vocab</h2>
       <p class="page-subtitle">High-frequency SAT words — click a card to see the definition.</p>
 
       <div class="sat-vocab-controls">
         <button id="sat-vocab-prev" class="ghost">← Prev</button>
-        <span id="sat-vocab-pos">1 / 50</span>
+        <span id="sat-vocab-pos">1 / 702</span>
         <button id="sat-vocab-next" class="ghost">Next →</button>
         <button id="sat-vocab-shuffle" class="outline">🔀 Shuffle</button>
       </div>
@@ -276,7 +278,7 @@
       <p class="flip-hint" style="text-align:center; margin-top:.5rem;">Click card to see definition</p>
     </section>
 
-    <!-- sat formula sheet -->
+    <!-- all the math formulas you need for the sat -->
     <section id="sat-formulas" class="page">
       <h2>Formula Sheet</h2>
       <p class="page-subtitle">Every math formula you need to know for the SAT.</p>

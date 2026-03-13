@@ -963,3 +963,39 @@ function renderFormulas() {
 }
 
 renderFormulas();
+
+
+// THEME SWITCHER
+// 5 preset accent colors, saves to localStorage
+
+const themes = {
+  blue:    { accent: "#2563eb", hover: "#1d4ed8", tint: "rgba(37,99,235,.12)",  focus: "rgba(37,99,235,.12)"  },
+  violet:  { accent: "#7c3aed", hover: "#6d28d9", tint: "rgba(124,58,237,.12)", focus: "rgba(124,58,237,.12)" },
+  emerald: { accent: "#059669", hover: "#047857", tint: "rgba(5,150,105,.12)",  focus: "rgba(5,150,105,.12)"  },
+  rose:    { accent: "#e11d48", hover: "#be123c", tint: "rgba(225,29,72,.12)",  focus: "rgba(225,29,72,.12)"  },
+  slate:   { accent: "#475569", hover: "#334155", tint: "rgba(71,85,105,.12)",  focus: "rgba(71,85,105,.12)"  }
+};
+
+function applyTheme(name) {
+  const t = themes[name];
+  if (!t) return;
+  const root = document.documentElement;
+  root.style.setProperty("--accent",   t.accent);
+  root.style.setProperty("--accent-h", t.hover);
+  root.style.setProperty("--accent-t", t.tint);
+
+  // update active dot
+  document.querySelectorAll(".theme-dot").forEach(d => {
+    d.classList.toggle("active", d.dataset.theme === name);
+  });
+
+  saveToStorage("selectedTheme", name);
+}
+
+// wire up each dot
+document.querySelectorAll(".theme-dot").forEach(dot => {
+  dot.addEventListener("click", () => applyTheme(dot.dataset.theme));
+});
+
+// restore saved theme on load
+applyTheme(loadFromStorage("selectedTheme", "blue"));

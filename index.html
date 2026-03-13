@@ -290,4 +290,211 @@
 
 <script src="script.js"></script>
 </body>
+</html>          <div class="stat-label">Assignments Left</div>
+          <div class="stat-number" id="pendingAssignmentCount">0</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-label">Tasks Completed</div>
+          <div class="stat-number" id="completedTaskCount">0</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-label">Study Time</div>
+          <div class="stat-number" id="totalStudyTime">0 min</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-label">Next Exam</div>
+          <div class="stat-number" id="upcomingExamPreview">—</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-label">Study Streak</div>
+          <div class="stat-number" id="streakCount">0 🔥</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- assignments page -->
+    <section id="homework" class="page">
+      <h2>Assignments</h2>
+      <p class="page-subtitle">Track homework and due dates.</p>
+      <form id="new-homework-form" class="inline-form">
+        <input type="text" id="homework-name" placeholder="e.g. Chapter 5 Essay, Math Problem Set" required />
+        <input type="date" id="homework-due" required />
+        <button type="submit">Add</button>
+      </form>
+      <ul id="homework-list" class="entry-list"></ul>
+    </section>
+
+    <!-- daily planner -->
+    <section id="daily-plan" class="page">
+      <h2>Daily Planner</h2>
+      <p class="page-subtitle">Plan your study tasks for today.</p>
+      <form id="new-task-form" class="inline-form">
+        <input type="text" id="task-description" placeholder="e.g. Review lecture notes, Read Chapter 3" required />
+        <input type="time" id="task-time" required />
+        <button type="submit">Add</button>
+      </form>
+      <ul id="task-list" class="entry-list"></ul>
+    </section>
+
+    <!-- pomodoro timer (25 min work, 5 min break) -->
+    <section id="focus-timer" class="page">
+      <h2>Pomodoro Timer</h2>
+      <p class="page-subtitle">25 min focus · 5 min break.</p>
+      <div class="clock-face">
+        <span id="clock-minutes">25</span>:<span id="clock-seconds">00</span>
+      </div>
+      <div class="session-label" id="session-type-label">Focus Session</div>
+      <div class="timer-controls">
+        <button id="timer-start-btn">▶ Start</button>
+        <button id="timer-pause-btn" class="ghost">⏸ Pause</button>
+        <button id="timer-reset-btn" class="ghost">↺ Reset</button>
+      </div>
+    </section>
+
+
+    <!-- gpa calculator -->
+    <section id="gpa-calc" class="page">
+      <h2>GPA Calculator</h2>
+      <p class="page-subtitle">Add courses to calculate your average out of 100.</p>
+      <form id="gpa-entry-form" class="inline-form">
+        <input type="text"   id="course-name"  placeholder="e.g. Calculus II, English Lit" required />
+        <input type="number" id="course-grade" placeholder="Grade (0–100)" min="0" max="100" required />
+        <button type="submit">Add</button>
+      </form>
+      <ul id="course-list" class="entry-list"></ul>
+      <div class="result-display">Average: <strong id="gpa-output">—</strong>%</div>
+    </section>
+
+    <!-- flashcards -->
+    <section id="study-cards" class="page">
+      <h2>Flashcards</h2>
+      <p class="page-subtitle">Add cards, click to flip, use arrows to navigate.</p>
+      <form id="new-card-form" class="inline-form">
+        <input type="text" id="card-front-text" placeholder="e.g. What is Newton's 2nd Law?" required />
+        <input type="text" id="card-back-text" placeholder="e.g. Force = mass × acceleration" required />
+        <button type="submit">Add Card</button>
+      </form>
+      <p id="empty-deck-msg" class="empty-state-msg">No flashcards yet — add one above!</p>
+      <!-- card viewer is hidden until you add at least one card -->
+      <div id="card-viewer" class="card-viewer" style="display:none;">
+        <div id="active-card" class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"><p id="card-front-display"></p></div>
+            <div class="flip-card-back"><p id="card-back-display"></p></div>
+          </div>
+        </div>
+        <p class="flip-hint">Click card to flip</p>
+        <div class="card-nav-row">
+          <button id="prev-card-btn" class="ghost">← Prev</button>
+          <span id="card-position-label">1 / 1</span>
+          <button id="next-card-btn" class="ghost">Next →</button>
+        </div>
+        <div class="card-action-row">
+          <button id="shuffle-deck-btn" class="outline">🔀 Shuffle</button>
+          <button id="delete-card-btn" class="danger-btn">🗑 Delete</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- exam countdown -->
+    <section id="exam-tracker" class="page">
+      <h2>Exam Countdown</h2>
+      <p class="page-subtitle">See how many days until each exam.</p>
+      <form id="new-exam-form" class="inline-form">
+        <input type="text" id="exam-name-input" placeholder="e.g. Biology Midterm, History Final" required />
+        <input type="date" id="exam-date-input" required />
+        <button type="submit">Add Exam</button>
+      </form>
+      <p id="no-exams-msg" class="empty-state-msg">No exams added yet.</p>
+      <div id="exam-cards-grid" class="exam-grid"></div>
+    </section>
+
+
+    <!-- SAT PREP STUFF -->
+
+    <!-- log your practice test scores here -->
+    <section id="sat-scores" class="page">
+      <h2>SAT Score Tracker</h2>
+      <p class="page-subtitle">Log practice test scores and track your progress.</p>
+
+      <form id="sat-score-form" class="inline-form">
+        <input type="date"   id="sat-score-date"    required />
+        <input type="number" id="sat-score-math"    placeholder="Math (200–800)"    min="200" max="800" step="10" required />
+        <input type="number" id="sat-score-reading" placeholder="Reading (200–800)" min="200" max="800" step="10" required />
+        <button type="submit">Add Score</button>
+      </form>
+
+      <p id="sat-scores-empty" class="empty-state-msg">No scores logged yet — add your first practice test above!</p>
+      <div id="sat-scores-list" class="sat-scores-list"></div>
+
+      <!-- summary tiles only show once you have scores -->
+      <div id="sat-scores-summary" class="sat-summary" style="display:none;">
+        <div class="sat-summary-tile">
+          <div class="stat-label">Best Total</div>
+          <div class="stat-number" id="sat-best-total">—</div>
+        </div>
+        <div class="sat-summary-tile">
+          <div class="stat-label">Latest Total</div>
+          <div class="stat-number" id="sat-latest-total">—</div>
+        </div>
+        <div class="sat-summary-tile">
+          <div class="stat-label">Improvement</div>
+          <div class="stat-number" id="sat-improvement">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- log wrong answers so you dont make the same mistake twice -->
+    <section id="sat-errors" class="page">
+      <h2>Wrong Answer Log</h2>
+      <p class="page-subtitle">Log mistakes so you don't repeat them on test day.</p>
+
+      <form id="sat-error-form" class="inline-form">
+        <select id="sat-error-section" required>
+          <option value="" disabled selected>Section</option>
+          <option value="Math">Math</option>
+          <option value="Reading &amp; Writing">Reading &amp; Writing</option>
+        </select>
+        <input type="text" id="sat-error-topic"  placeholder="Topic (e.g. Linear equations)" required />
+        <input type="text" id="sat-error-reason" placeholder="Why? (e.g. Careless mistake)" required />
+        <button type="submit">Log</button>
+      </form>
+
+      <p id="sat-errors-empty" class="empty-state-msg">No mistakes logged yet — add one above!</p>
+      <ul id="sat-errors-list" class="entry-list"></ul>
+    </section>
+
+    <!-- sat vocab - same flip card thing as the regular flashcards -->
+    <section id="sat-vocab" class="page">
+      <h2>SAT Vocab</h2>
+      <p class="page-subtitle">High-frequency SAT words — click a card to see the definition.</p>
+
+      <div class="sat-vocab-controls">
+        <button id="sat-vocab-prev" class="ghost">← Prev</button>
+        <span id="sat-vocab-pos">1 / 702</span>
+        <button id="sat-vocab-next" class="ghost">Next →</button>
+        <button id="sat-vocab-shuffle" class="outline">🔀 Shuffle</button>
+      </div>
+
+      <div id="sat-vocab-card" class="flip-card" style="max-width:520px; height:230px; margin:.75rem auto 0;">
+        <div class="flip-card-inner">
+          <div class="flip-card-front"><p id="sat-vocab-word" style="font-size:1.4rem; font-weight:700;"></p></div>
+          <div class="flip-card-back"><p id="sat-vocab-def"></p></div>
+        </div>
+      </div>
+      <p class="flip-hint" style="text-align:center; margin-top:.5rem;">Click card to see definition</p>
+    </section>
+
+    <!-- all the math formulas you need for the sat -->
+    <section id="sat-formulas" class="page">
+      <h2>Formula Sheet</h2>
+      <p class="page-subtitle">Every math formula you need to know for the SAT.</p>
+      <div class="formula-grid" id="formula-grid"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
 </html>

@@ -1,6 +1,4 @@
-// script.js - all the javascript for scholarly
-// took me forever to get the localStorage stuff working lol
-
+// script.js - all the javascript for scholarly for AHS project
 
 // helper functions for saving/loading from localStorage
 // you have to use JSON.parse and JSON.stringify or it breaks

@@ -16,7 +16,7 @@
     <h1 class="welcome-heading">Welcome!</h1>
     <p class="welcome-sub">What should we call you?</p>
     <input type="text" id="welcome-name-input" class="welcome-input" placeholder="Enter your name" maxlength="30" />
-    <button id="welcome-submit-btn" class="welcome-btn">Get Started →</button>
+    <button id='welcome-submit-btn' class="welcome-btn">Get Started →</button>
   </div>
 </div>
 
@@ -35,7 +35,7 @@
         <li><button class="page-link" data-page="focus-timer">Pomodoro Timer</button></li>
         <li><button class="page-link" data-page="gpa-calc">GPA Calc</button></li>
         <li><button class="page-link" data-page="study-cards">Flashcards</button></li>
-        <li><button class="page-link" data-page="exam-tracker">Exam Countdown</button></li>
+        <li><button data-page="exam-tracker" class="page-link">Exam Countdown</button></li>
       </ul>
     </nav>
 
@@ -60,8 +60,8 @@
       <div class="theme-switcher">
         <span class="theme-switcher-label">Theme</span>
         <div class="theme-dots">
-          <button class="theme-dot active" data-theme="blue"    title="Blue"    style="background:#2563eb;"></button>
-          <button class="theme-dot"        data-theme="violet"  title="Violet"  style="background:#7c3aed;"></button>
+          <button class="theme-dot active" data-theme="blue" title="Blue" style="background:#2563eb;"></button>
+          <button class="theme-dot" data-theme="violet" title="Violet" style="background:#7c3aed;"></button>
           <button class="theme-dot"        data-theme="emerald" title="Emerald" style="background:#059669;"></button>
           <button class="theme-dot"        data-theme="rose"    title="Rose"    style="background:#e11d48;"></button>
           <button class="theme-dot"        data-theme="slate"   title="Slate"   style="background:#475569;"></button>
@@ -71,7 +71,7 @@
   </aside>
 
   <!-- this button shows up on mobile when the sidebar is hidden -->
-  <button class="hamburger" id="hamburger">☰ Scholarly</button>
+  <button class="hamburger" id="hamburger" type="button">☰ Scholarly</button>
 
   <!-- all the pages, js handles switching between them -->
   <main class="page-content">
@@ -89,7 +89,7 @@
         <div class="stat-tile">
           <div class="stat-label">Tasks Completed</div>
           <div class="stat-number" id="completedTaskCount">0</div>
-        </div>
+          </div>
         <div class="stat-tile">
           <div class="stat-label">Study Time</div>
           <div class="stat-number" id="totalStudyTime">0 min</div>
@@ -111,7 +111,7 @@
       <p class="page-subtitle">Track homework and due dates.</p>
       <form id="new-homework-form" class="inline-form">
         <input type="text" id="homework-name" placeholder="e.g. Chapter 5 Essay, Math Problem Set" required />
-        <input type="date" id="homework-due" required />
+        <input id="homework-due" type="date" required />
         <button type="submit">Add</button>
       </form>
       <ul id="homework-list" class="entry-list"></ul>
@@ -136,11 +136,11 @@
       <div class="clock-face">
         <span id="clock-minutes">25</span>:<span id="clock-seconds">00</span>
       </div>
-      <div class="session-label" id="session-type-label">Focus Session</div>
+      <div id="session-type-label" class="session-label">Focus Session</div>
       <div class="timer-controls">
         <button id="timer-start-btn">▶ Start</button>
         <button id="timer-pause-btn" class="ghost">⏸ Pause</button>
-        <button id="timer-reset-btn" class="ghost">↺ Reset</button>
+        <button class="ghost" id="timer-reset-btn">↺ Reset</button>
       </div>
     </section>
 
@@ -150,7 +150,7 @@
       <h2>GPA Calculator</h2>
       <p class="page-subtitle">Add courses to calculate your average out of 100.</p>
       <form id="gpa-entry-form" class="inline-form">
-        <input type="text"   id="course-name"  placeholder="e.g. Calculus II, English Lit" required />
+        <input type="text" id="course-name" placeholder="e.g. Calculus II, English Lit" required />
         <input type="number" id="course-grade" placeholder="Grade (0–100)" min="0" max="100" required />
         <button type="submit">Add</button>
       </form>
@@ -161,7 +161,7 @@
     <!-- flashcards -->
     <section id="study-cards" class="page">
       <h2>Flashcards</h2>
-      <p class="page-subtitle">Add cards, click to flip, use arrows to navigate.</p>
+      <p class='page-subtitle'>Add cards, click to flip, use arrows to navigate.</p>
       <form id="new-card-form" class="inline-form">
         <input type="text" id="card-front-text" placeholder="e.g. What is Newton's 2nd Law?" required />
         <input type="text" id="card-back-text" placeholder="e.g. Force = mass × acceleration" required />
@@ -170,7 +170,7 @@
       <p id="empty-deck-msg" class="empty-state-msg">No flashcards yet — add one above!</p>
       <!-- card viewer is hidden until you add at least one card -->
       <div id="card-viewer" class="card-viewer" style="display:none;">
-        <div id="active-card" class="flip-card">
+        <div id="active-card" class="flip-card" tabindex="0">
           <div class="flip-card-inner">
             <div class="flip-card-front"><p id="card-front-display"></p></div>
             <div class="flip-card-back"><p id="card-back-display"></p></div>
@@ -183,7 +183,7 @@
           <button id="next-card-btn" class="ghost">Next →</button>
         </div>
         <div class="card-action-row">
-          <button id="shuffle-deck-btn" class="outline">🔀 Shuffle</button>
+          <button id='shuffle-deck-btn' class="outline">🔀 Shuffle</button>
           <button id="delete-card-btn" class="danger-btn">🗑 Delete</button>
         </div>
       </div>
@@ -211,9 +211,9 @@
       <p class="page-subtitle">Log practice test scores and track your progress.</p>
 
       <form id="sat-score-form" class="inline-form">
-        <input type="date"   id="sat-score-date"    required />
-        <input type="number" id="sat-score-math"    placeholder="Math (200–800)"    min="200" max="800" step="10" required />
-        <input type="number" id="sat-score-reading" placeholder="Reading (200–800)" min="200" max="800" step="10" required />
+        <input type="date" id="sat-score-date" required />
+        <input type="number" id="sat-score-math" placeholder="Math (200–800)" min="200" max="800" step="10" required />
+        <input type="number" id="sat-score-reading"  placeholder="Reading (200–800)" min="200" max="800" step="10" required />
         <button type="submit">Add Score</button>
       </form>
 
@@ -226,7 +226,7 @@
           <div class="stat-label">Best Total</div>
           <div class="stat-number" id="sat-best-total">—</div>
         </div>
-        <div class="sat-summary-tile">
+        <div class='sat-summary-tile'>
           <div class="stat-label">Latest Total</div>
           <div class="stat-number" id="sat-latest-total">—</div>
         </div>
@@ -248,7 +248,7 @@
           <option value="Math">Math</option>
           <option value="Reading &amp; Writing">Reading &amp; Writing</option>
         </select>
-        <input type="text" id="sat-error-topic"  placeholder="Topic (e.g. Linear equations)" required />
+        <input type="text" id="sat-error-topic" placeholder="Topic (e.g. Linear equations)" required />
         <input type="text" id="sat-error-reason" placeholder="Why? (e.g. Careless mistake)" required />
         <button type="submit">Log</button>
       </form>
@@ -271,7 +271,7 @@
 
       <div id="sat-vocab-card" class="flip-card" style="max-width:520px; height:230px; margin:.75rem auto 0;">
         <div class="flip-card-inner">
-          <div class="flip-card-front"><p id="sat-vocab-word" style="font-size:1.4rem; font-weight:700;"></p></div>
+          <div class="flip-card-front"><p id="sat-vocab-word" style="font-size:1.4rem; font-weight: 700;"></p></div>
           <div class="flip-card-back"><p id="sat-vocab-def"></p></div>
         </div>
       </div>
@@ -282,7 +282,7 @@
     <section id="sat-formulas" class="page">
       <h2>Formula Sheet</h2>
       <p class="page-subtitle">Every math formula you need to know for the SAT.</p>
-      <div class="formula-grid" id="formula-grid"></div>
+      <div id="formula-grid" class="formula-grid"></div>
     </section>
 
   </main>

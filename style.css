@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400display=swap');
-
+/* all CSS for Scholarly AHS project
 
 
 /* style.css - scholarly
@@ -146,6 +146,7 @@ body {
   background: var(--accent);
   color: #fff;
   font-weight: 600;
+  color: #ffffff;
 }
 
 .page-link.active:hover { background: var(--accent-h); }
@@ -662,7 +663,7 @@ body.dark .exam-card.urgent { background: #1f0a0a; border-color: #7f1d1d; }
   .nav-footer  { margin-top: .5rem; }
 
   .page-content { padding: 1.5rem 1.1rem; }
-  .clock-face   { font-size: 4rem; letter-spacing: -3px; }
+    .clock-face   { font-size: 4rem; letter-spacing: -3px; }
   .flip-card    { height: 175px; }
 }
 
@@ -812,9 +813,7 @@ body.dark .exam-card.urgent { background: #1f0a0a; border-color: #7f1d1d; }
   font-weight: 500;
 }
 
-.sat-score-breakdown {
-  font-size: .875rem;
-}
+.sat-score-breakdown { font-size: .875rem; }
 
 .sat-score-right {
   display: flex;
@@ -951,7 +950,7 @@ body.dark .exam-card.urgent { background: #1f0a0a; border-color: #7f1d1d; }
   padding: 0;
   cursor: pointer;
   transition: transform var(--t), border-color var(--t);
-  box-shadow: none;
+  box-shadow: none !important;
   flex-shrink: 0;
 }
 

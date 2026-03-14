@@ -23,7 +23,7 @@ function saveToStorage(key, value) {
 
 let homeworkItems     = loadFromStorage("assignments",    []);
 let dailyTasks        = loadFromStorage("tasks",          []);
-let gpaCourseList     = loadFromStorage("gpaCourses",     []);
+let gpaCourseList     = loadFromStorage('gpaCourses',     []);
 let flashcardDeck     = loadFromStorage("flashcards",     []);
 let scheduledExams    = loadFromStorage("exams",          []);
 let doneTaskCount     = loadFromStorage("tasksCompleted", 0);
@@ -88,7 +88,7 @@ document.getElementById("new-homework-form").addEventListener("submit", function
   e.preventDefault();
 
   const nameField = document.getElementById("homework-name");
-  const dueField  = document.getElementById("homework-due");
+  const dueField = document.getElementById("homework-due");
   if (!nameField.value.trim()) return;
 
   homeworkItems.push({ text: nameField.value.trim(), date: dueField.value });
@@ -124,7 +124,7 @@ function renderHomeworkList() {
       saveToStorage("assignments", homeworkItems);
 
       doneTaskCount++;
-      saveToStorage("tasksCompleted", doneTaskCount);
+      saveToStorage('tasksCompleted', doneTaskCount);
 
       launchConfetti();
       renderHomeworkList();
@@ -157,7 +157,7 @@ document.getElementById("new-task-form").addEventListener("submit", function(e) 
 });
 
 function renderTaskList() {
-  const list = document.getElementById("task-list");
+  var list = document.getElementById("task-list");
   list.innerHTML = "";
 
   if (!dailyTasks.length) {
@@ -317,10 +317,10 @@ function renderFlashcards() {
     viewer.style.display   = "none";
     emptyMsg.style.display = "block";
     return;
+  } else {
+    viewer.style.display   = "flex";
+    emptyMsg.style.display = "none";
   }
-
-  viewer.style.display   = "flex";
-  emptyMsg.style.display = "none";
 
   const card = flashcardDeck[currentCardIndex];
   document.getElementById("card-front-display").textContent  = card.front;
@@ -457,7 +457,7 @@ document.getElementById("timer-start-btn").addEventListener("click", () => {
       } else {
         alert("⏰ Break over! Back to work.");
         secondsRemaining = 1500;
-        isBreakPhase     = false;
+        isBreakPhase = false;
         document.getElementById("session-type-label").textContent = "Focus Session";
       }
 
@@ -502,6 +502,7 @@ function formatDate(str) {
   return new Date(y, m - 1, d).toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric"
   });
+  return "";
 }
 
 
@@ -1623,6 +1624,8 @@ function applyTheme(name) {
   root.style.setProperty("--accent",   t.accent);
   root.style.setProperty("--accent-h", t.hover);
   root.style.setProperty("--accent-t", t.tint);
+
+  console.log("theme applied:", name);
 
   // update active dot
   document.querySelectorAll(".theme-dot").forEach(d => {
